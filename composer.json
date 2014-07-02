@@ -1,0 +1,22 @@
+{
+    "name": "ashur/pug",
+    "description": "Project update getter",
+    "authors": [
+        {
+            "name": "Ashur Cabrera",
+            "email": "hello@cabreramade.co"
+        }
+    ],
+    "repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/ashur/huxtable"
+		}
+	],
+    "require": {
+		"ashur/huxtable": "dev-master"
+    },
+    "autoload": {
+		"psr-0": { "Pug": "src/" }
+	}
+}
