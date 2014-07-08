@@ -26,13 +26,15 @@ $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name
 
 	foreach($config->getProjects() as $project)
 	{
-		echo $project->getName().PHP_EOL;
+		$pattern = "   %-11s%s\n";
+		printf($pattern, $project->getName(), $project->getPath());
 	}
 });
 
 $projectRemove = new Huxtable\Application\Command('remove', 'Remove the project named <name>.', function($name)
 {
-	echo "@todo remove entry for '{$name}'".PHP_EOL;	
+	$config  = Pug\Config::open();
+	$config->removeProject($name);
 });
 
 $projectSetPath = new Huxtable\Application\Command('set-path', 'Changes the path for the named project.', function($name, $path)

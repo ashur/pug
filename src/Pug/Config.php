@@ -102,6 +102,31 @@ class Config
 	}
 
 	/**
+	 * @param	string	$name
+	 */
+	public function removeProject($name)
+	{
+		$count   = count($this->projects);
+		$removed = 0;
+
+		for($i=0; $i < $count; $i++)
+		{
+			if($this->projects[$i]->getName() == $name)
+			{
+				unset($this->projects[$i]);
+				$removed++;
+			}
+		}
+
+		if($removed == 0)
+		{
+			throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$name}' not found", 1);
+		}
+		
+		$this->write();
+	}
+
+	/**
 	 */
 	protected function write()
 	{
