@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This file is part of Pug
+ */
+
+require_once 'bootstrap.php';
+
+$app = new Huxtable\Application('pug', '0.1.0', new Huxtable\Input());
+
+run($app);
+
+?>
