@@ -20,7 +20,7 @@ $project = new Huxtable\Application\Command('project', 'List, create or delete p
 
 $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name> which lives at <path>', function($name, $path)
 {
-	$config  = Pug\Config::open();
+	$config = Pug\Config::open();
 
 	$config->addProject(new Pug\Project($name, $path));
 
@@ -39,9 +39,9 @@ $projectRemove = new Huxtable\Application\Command('remove', 'Remove the project 
 
 $projectSetPath = new Huxtable\Application\Command('set-path', 'Changes the path for the named project.', function($name, $path)
 {
-	echo "@todo update entry for '{$name}:{$path}'".PHP_EOL;
+	$config = Pug\Config::open();
+	$config->setPathForProject(new Pug\Project($name, $path));
 });
-
 
 $project->addSubcommand($projectAdd);
 $project->addSubcommand($projectRemove);

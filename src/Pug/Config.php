@@ -127,6 +127,29 @@ class Config
 	}
 
 	/**
+	 * @param	Project	$project
+	 */
+	public function setPathForProject(Project $project)
+	{
+		$updated = 0;
+		for($i=0; $i < count($this->projects); $i++)
+		{
+			if($this->projects[$i]->getName() == $project->getName())
+			{
+				$this->projects[$i] = $project;
+				$updated++;
+			}
+		}
+
+		if($updated == 0)
+		{
+			throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$project->getName()}' not found", 1);
+		}
+
+		$this->write();
+	}
+
+	/**
 	 */
 	protected function write()
 	{
