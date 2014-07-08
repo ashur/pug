@@ -5,7 +5,7 @@
  */
 namespace Pug;
 
-class Project
+class Project implements \JsonSerializable
 {
 	/**
 	 * @var string
@@ -24,9 +24,23 @@ class Project
 	public function __construct($name, $path)
 	{
 		$this->name = $name;
-		
-		$pathNormalized = str_replace('~', getenv('HOME'), $path);
-		$this->path = new \SplFileInfo($pathNormalized);
+		$this->path = new \SplFileInfo($path);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getPath()
+	{
+		return $this->path->getPathname();
 	}
 
 	/**
@@ -90,6 +104,17 @@ class Project
 		}
 
 		touch(getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function jsonSerialize()
+	{
+		return [
+			'name' => $this->getName(),
+			'path' => $this->getPath()
+		];
 	}
 }
 
