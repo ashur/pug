@@ -16,6 +16,9 @@
     "require": {
 		"ashur/huxtable": "dev-master"
     },
+    "require-dev": {
+		"phpunit/phpunit": "4.*"
+    },
     "autoload": {
 		"psr-0": { "Pug": "src/" }
 	}
