@@ -30,22 +30,6 @@ class Project
 	}
 
 	/**
-	 * @return	string
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	/**
-	 * @return	SplFileInfo
-	 */
-	public function getPath()
-	{
-		return $this->path;
-	}
-
-	/**
 	 * @return	boolean
 	 */
 	public function update()
