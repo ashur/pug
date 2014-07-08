@@ -46,9 +46,20 @@ class Project
 		}
 
 		$title = ucwords($this->name);
-		system('echo');
-		system("figlet -f smslant '{$title}'");
 
+		// Figlet
+		exec('which figlet', $output, $figlet);
+
+		if($figlet == 0)
+		{
+			system('echo');
+			system("figlet -f smslant '{$title}'");	
+		}
+		else
+		{
+			echo $title.PHP_EOL;
+		}
+	
 		chdir($this->path->getPathname());
 
 		// Git
