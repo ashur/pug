@@ -9,9 +9,9 @@ $commands = [];
 // Project
 $project = new Huxtable\Application\Command('project', 'List, create or delete projects', function()
 {
-	$config = Pug\Config::open();
+	$pug = Pug\Pug::open();
 
-	foreach($config->getProjects() as $project)
+	foreach($pug->getProjects() as $project)
 	{
 		$pattern = "   %-11s%s\n";
 		printf($pattern, $project->getName(), $project->getPath());
@@ -20,11 +20,11 @@ $project = new Huxtable\Application\Command('project', 'List, create or delete p
 
 $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name> which lives at <path>', function($name, $path)
 {
-	$config = Pug\Config::open();
+	$pug = Pug\Pug::open();
 
-	$config->addProject(new Pug\Project($name, $path));
+	$pug->addProject(new Pug\Project($name, $path));
 
-	foreach($config->getProjects() as $project)
+	foreach($pug->getProjects() as $project)
 	{
 		$pattern = "   %-11s%s\n";
 		printf($pattern, $project->getName(), $project->getPath());
@@ -33,14 +33,14 @@ $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name
 
 $projectRemove = new Huxtable\Application\Command('remove', 'Remove the project named <name>.', function($name)
 {
-	$config  = Pug\Config::open();
-	$config->removeProject($name);
+	$pug = Pug\Pug::open();
+	$pug->removeProject($name);
 });
 
 $projectSetPath = new Huxtable\Application\Command('set-path', 'Changes the path for the named project.', function($name, $path)
 {
-	$config = Pug\Config::open();
-	$config->setPathForProject(new Pug\Project($name, $path));
+	$pug = Pug\Pug::open();
+	$pug->setPathForProject(new Pug\Project($name, $path));
 });
 
 $project->addSubcommand($projectAdd);
@@ -52,18 +52,18 @@ $commands[] = $project;
 // Update
 $commands[] = new Huxtable\Application\Command('update', 'Fetch project updates', function($app=null)
 {
-	$config = Pug\Config::open();
+	$pug = Pug\Pug::open();
 
 	if(is_null($app))
 	{
-		foreach($config->getProjects() as $project)
+		foreach($pug->getProjects() as $project)
 		{
 			$project->update();
 		}
 	}
 	else
 	{
-		$project = $config->getProject($app)->update();
+		$project = $pug->getProject($app)->update();
 	}
 });
 

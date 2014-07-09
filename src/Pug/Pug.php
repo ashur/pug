@@ -7,7 +7,7 @@ namespace Pug;
 
 define('PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
 
-class Config
+class Pug
 {
 	/**
 	 * @var array
@@ -65,7 +65,7 @@ class Config
 	}
 
 	/**
-	 * @return	Pug\Config
+	 * @return	Pug\Pug
 	 */
 	public static function open()
 	{
