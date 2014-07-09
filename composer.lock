@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:ashur/huxtable.git",
-                "reference": "48accd646e022986594ed86013dc669b123122ab"
+                "reference": "5354d816e9da811a563f28ff4851ee45c2faf3ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ashur/huxtable/zipball/48accd646e022986594ed86013dc669b123122ab",
-                "reference": "48accd646e022986594ed86013dc669b123122ab",
+                "url": "https://api.github.com/repos/ashur/huxtable/zipball/5354d816e9da811a563f28ff4851ee45c2faf3ba",
+                "reference": "5354d816e9da811a563f28ff4851ee45c2faf3ba",
                 "shasum": ""
             },
             "require-dev": {
@@ -43,7 +43,7 @@
                 "source": "https://github.com/ashur/huxtable/tree/master",
                 "issues": "https://github.com/ashur/huxtable/issues"
             },
-            "time": "2014-03-31 03:52:28"
+            "time": "2014-07-09 01:07:23"
         }
     ],
     "packages-dev": [

@@ -9,6 +9,8 @@ require_once 'bootstrap.php';
 
 $app = new Huxtable\Application('pug', '0.1.0', new Huxtable\Input());
 
+$app->unregisterCommand('version');
+
 run($app);
 
 ?>
