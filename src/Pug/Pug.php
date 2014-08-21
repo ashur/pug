@@ -15,12 +15,38 @@ class Pug
 	protected $projects=[];
 
 	/**
-	 * @param	array	$projects	Array of Pug\Project objects
 	 * @return	void
 	 */
-	public function __construct(array $projects)
+	public function __construct()
 	{
-		$this->projects = $projects;
+		$projects = [];
+		$fileInfo = new \SplFileInfo(PUG_CONFIG);
+
+		if(!file_exists(PUG_CONFIG))
+		{
+			touch($fileInfo->getPathname());
+		}
+		else
+		{
+			if(!is_readable(PUG_CONFIG))
+			{
+				throw new \Huxtable\Application\Command\CommandInvokedException("Can't read from ~/.pug", 1);
+			}
+			if(!is_writable(PUG_CONFIG))
+			{
+				throw new \Huxtable\Application\Command\CommandInvokedException("Can't write to ~/.pug", 1);
+			}
+
+			$json = json_decode(file_get_contents(PUG_CONFIG), true);
+
+			if(isset($json['projects']))
+			{
+				foreach($json['projects'] as $project)
+				{
+					$this->projects[] = new Project($project['name'], $project['path']);
+				}
+			}
+		}
 	}
 
 	/**
@@ -62,43 +88,6 @@ class Pug
 	public function getProjects()
 	{
 		return $this->projects;
-	}
-
-	/**
-	 * @return	Pug\Pug
-	 */
-	public static function open()
-	{
-		$projects = [];
-		$fileInfo = new \SplFileInfo(PUG_CONFIG);
-
-		if(!file_exists(PUG_CONFIG))
-		{
-			touch($fileInfo->getPathname());
-		}
-		else
-		{
-			if(!is_readable(PUG_CONFIG))
-			{
-				throw new \Huxtable\Application\Command\CommandInvokedException("Can't read from ~/.pug", 1);
-			}
-			if(!is_writable(PUG_CONFIG))
-			{
-				throw new \Huxtable\Application\Command\CommandInvokedException("Can't write to ~/.pug", 1);
-			}
-
-			$json = json_decode(file_get_contents(PUG_CONFIG), true);
-
-			if(isset($json['projects']))
-			{
-				foreach($json['projects'] as $project)
-				{
-					$projects[] = new Project($project['name'], $project['path']);
-				}
-			}
-		}
-
-		return new self($projects);
 	}
 
 	/**
