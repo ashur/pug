@@ -9,7 +9,7 @@ $commands = [];
 // Project
 $project = new Huxtable\Application\Command('project', 'List, create or delete projects', function()
 {
-	$pug = Pug\Pug::open();
+	$pug = new Pug\Pug();
 
 	foreach($pug->getProjects() as $project)
 	{
@@ -20,7 +20,7 @@ $project = new Huxtable\Application\Command('project', 'List, create or delete p
 
 $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name> which lives at <path>', function($name, $path)
 {
-	$pug = Pug\Pug::open();
+	$pug = new Pug\Pug();
 
 	$pug->addProject(new Pug\Project($name, $path));
 
@@ -33,13 +33,13 @@ $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name
 
 $projectRemove = new Huxtable\Application\Command('remove', 'Remove the project named <name>.', function($name)
 {
-	$pug = Pug\Pug::open();
+	$pug = new Pug\Pug();
 	$pug->removeProject($name);
 });
 
 $projectSetPath = new Huxtable\Application\Command('set-path', 'Changes the path for the named project.', function($name, $path)
 {
-	$pug = Pug\Pug::open();
+	$pug = new Pug\Pug();
 	$pug->setPathForProject(new Pug\Project($name, $path));
 });
 
@@ -50,11 +50,11 @@ $project->addSubcommand($projectSetPath);
 $commands[] = $project;
 
 // Update
-$commands[] = new Huxtable\Application\Command('update', 'Fetch project updates', function($app=null)
+$update = new Huxtable\Application\Command('update', 'Fetch project updates', function($app)
 {
-	$pug = Pug\Pug::open();
+	$pug = new Pug\Pug();
 
-	if(is_null($app))
+	if($app == 'all')
 	{
 		foreach($pug->getProjects() as $project)
 		{
@@ -66,5 +66,9 @@ $commands[] = new Huxtable\Application\Command('update', 'Fetch project updates'
 		$project = $pug->getProject($app)->update();
 	}
 });
+
+$update->setUsage("update [<app>|all]");
+
+$commands[] = $update;
 
 ?>
