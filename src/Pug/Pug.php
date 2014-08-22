@@ -89,7 +89,7 @@ class Pug
 	 * @param	string	$name
 	 * @return
 	 */
-	protected function getProject($name)
+	public function getProject($name)
 	{
 		foreach($this->projects as &$project)
 		{
