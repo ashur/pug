@@ -8,6 +8,11 @@ namespace Pug;
 class Project implements \JsonSerializable
 {
 	/**
+	 * @var boolean
+	 */
+	protected $enabled;
+
+	/**
 	 * @var string
 	 */
 	protected $name;
@@ -25,12 +30,31 @@ class Project implements \JsonSerializable
 	/**
 	 * @param	string	$name		Name of project
 	 * @param	string	$path		Path to project directory
+	 * @param	string	$updated	UNIX timestamp of last update
+	 * @param	boolean	$enabled
 	 */
-	public function __construct($name, $path, $updated=null)
+	public function __construct($name, $path, $updated=null, $enabled=true)
 	{
 		$this->name = $name;
 		$this->path = new \SplFileInfo($path);
 		$this->updated = $updated;
+		$this->enabled = $enabled === true;
+	}
+
+	/**
+	 * @return	void
+	 */
+	public function disable()
+	{
+		$this->enabled = false;
+	}
+
+	/**
+	 * @return	void
+	 */
+	public function enable()
+	{
+		$this->enabled = true;
 	}
 
 	/**
@@ -55,6 +79,14 @@ class Project implements \JsonSerializable
 	public function getUpdated()
 	{
 		return !is_null($this->updated) ? date('D M j H:i', $this->updated) : "-";
+	}
+
+	/**
+	 * @return	boolean
+	 */
+	public function isEnabled()
+	{
+		return $this->enabled;
 	}
 
 	/**
@@ -127,17 +159,12 @@ class Project implements \JsonSerializable
 	 */
 	public function jsonSerialize()
 	{
-		$serialized = [
+		return [
 			'name' => $this->getName(),
-			'path' => $this->getPath()
+			'path' => $this->getPath(),
+			'updated' => $this->updated,
+			'enabled' => $this->enabled
 		];
-
-		if(!is_null($this->updated))
-		{
-			$serialized['updated'] = $this->updated;
-		}
-
-		return $serialized;
 	}
 }
 
