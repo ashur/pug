@@ -7,8 +7,9 @@
 
 require_once 'bootstrap.php';
 
-$pug = new Huxtable\Application('pug', '0.1.0', new Huxtable\Input());
+date_default_timezone_set('America/Los_Angeles');
 
+$pug = new Huxtable\Application('pug', '0.1.0', new Huxtable\Input());
 $pug->unregisterCommand('version');
 
 run($pug);

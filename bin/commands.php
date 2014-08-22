@@ -13,8 +13,8 @@ $project = new Huxtable\Application\Command('project', 'List, create or delete p
 
 	foreach($pug->getProjects() as $project)
 	{
-		$pattern = "   %-11s%s\n";
-		printf($pattern, $project->getName(), $project->getPath());
+		$pattern = " * %-16s%-20s%s\n";
+		printf($pattern, $project->getName(), $project->getUpdated(), $project->getPath());
 	}
 });
 
@@ -26,8 +26,8 @@ $projectAdd = new Huxtable\Application\Command('add', 'Add a project named <name
 
 	foreach($pug->getProjects() as $project)
 	{
-		$pattern = "   %-11s%s\n";
-		printf($pattern, $project->getName(), $project->getPath());
+		$pattern = " * %-16s%-20s%s\n";
+		printf($pattern, $project->getName(), $project->getUpdated(), $project->getPath());
 	}
 });
 
@@ -53,18 +53,7 @@ $commands[] = $project;
 $update = new Huxtable\Application\Command('update', 'Fetch project updates', function($app)
 {
 	$pug = new Pug\Pug();
-
-	if($app == 'all')
-	{
-		foreach($pug->getProjects() as $project)
-		{
-			$project->update();
-		}
-	}
-	else
-	{
-		$project = $pug->getProject($app)->update();
-	}
+	$pug->update($app);
 });
 
 $update->setUsage("update [<app>|all]");

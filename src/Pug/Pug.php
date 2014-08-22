@@ -43,7 +43,8 @@ class Pug
 			{
 				foreach($json['projects'] as $project)
 				{
-					$this->projects[] = new Project($project['name'], $project['path']);
+					$updated = isset($project['updated']) ? $project['updated'] : null;
+					$this->projects[] = new Project($project['name'], $project['path'], $updated);
 				}
 			}
 		}
@@ -70,9 +71,9 @@ class Pug
 	 * @param	string	$name
 	 * @return
 	 */
-	public function getProject($name)
+	protected function getProject($name)
 	{
-		foreach($this->projects as $project)
+		foreach($this->projects as &$project)
 		{
 			if($project->getName() == $name)
 			{
@@ -82,8 +83,9 @@ class Pug
 
 		throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$name}' not found", 1);
 	}
+
 	/**
-	 * @return	array					Return contents of $this->projects
+	 * @return	array
 	 */
 	public function getProjects()
 	{
@@ -133,6 +135,26 @@ class Pug
 		if($updated == 0)
 		{
 			throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$project->getName()}' not found", 1);
+		}
+
+		$this->write();
+	}
+
+	/**
+	 * @param	string	$app	Name of app to update
+	 */
+	public function update($app)
+	{
+		if($app == 'all')
+		{
+			array_walk($this->projects, function(&$item, $key)
+			{
+				$item->update();
+			});
+		}
+		else
+		{
+			$this->getProject($app)->update();
 		}
 
 		$this->write();

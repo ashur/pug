@@ -18,13 +18,19 @@ class Project implements \JsonSerializable
 	protected $path;
 
 	/**
+	 * @var int
+	 */
+	protected $updated;
+
+	/**
 	 * @param	string	$name		Name of project
 	 * @param	string	$path		Path to project directory
 	 */
-	public function __construct($name, $path)
+	public function __construct($name, $path, $updated=null)
 	{
 		$this->name = $name;
 		$this->path = new \SplFileInfo($path);
+		$this->updated = $updated;
 	}
 
 	/**
@@ -41,6 +47,14 @@ class Project implements \JsonSerializable
 	public function getPath()
 	{
 		return $this->path->getPathname();
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getUpdated()
+	{
+		return !is_null($this->updated) ? date('D M j H:i', $this->updated) : "-";
 	}
 
 	/**
@@ -103,6 +117,8 @@ class Project implements \JsonSerializable
 			system('pod install');
 		}
 
+		$this->updated = time();
+
 		touch(getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
 	}
 
@@ -111,10 +127,17 @@ class Project implements \JsonSerializable
 	 */
 	public function jsonSerialize()
 	{
-		return [
+		$serialized = [
 			'name' => $this->getName(),
 			'path' => $this->getPath()
 		];
+
+		if(!is_null($this->updated))
+		{
+			$serialized['updated'] = $this->updated;
+		}
+
+		return $serialized;
 	}
 }
 
