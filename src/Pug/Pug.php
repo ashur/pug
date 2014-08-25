@@ -48,6 +48,8 @@ class Pug
 				}
 			}
 		}
+
+		$this->sortProjects();
 	}
 
 	/**
@@ -158,6 +160,18 @@ class Pug
 		$this->write();
 	}
 
+	protected function sortProjects()
+	{
+		// Sort projects by enabled status and then by name
+		foreach($this->projects as $project)
+		{
+			$active[] = $project->isEnabled();
+			$name[]  = $project->getName();
+		}
+	
+		array_multisort($active, SORT_DESC, $name, SORT_ASC, $this->projects);
+	}
+
 	/**
 	 * @param	string	$app	Name of app to update
 	 */
@@ -185,6 +199,7 @@ class Pug
 	 */
 	protected function write()
 	{
+		$this->sortProjects();
 		$projects = $this->projects;
 
 		$json = json_encode(compact('projects'), JSON_PRETTY_PRINT);

@@ -79,15 +79,6 @@ $commands[] = $update;
  */
 function listProjects(array $projects, $showPath=false)
 {
-	// Sort projects by enabled status and then by name
-	foreach($projects as $project)
-	{
-		$active[] = $project->isEnabled();
-		$name[]  = $project->getName();
-	}
-
-	array_multisort($active, SORT_DESC, $name, SORT_ASC, $projects);
-
 	foreach($projects as $project)
 	{
 		$enabled = $project->isEnabled() === true ? '*' : '-';
