@@ -162,6 +162,9 @@ class Pug
 
 	protected function sortProjects()
 	{
+		$active = [];
+		$name   = [];
+
 		// Sort projects by enabled status and then by name
 		foreach($this->projects as $project)
 		{
