@@ -128,7 +128,7 @@ class Project implements \JsonSerializable
 		if($gitFile->isDir())
 		{
 			// Get latest changes
-			system('git pull');
+			$updateOutput = system('git pull');
 			system('git submodule update --init --recursive');
 		}
 
@@ -138,7 +138,7 @@ class Project implements \JsonSerializable
 		if($svnFile->isDir())
 		{
 			// Get latest changes
-			system('svn up');
+			$updateOutput = system('svn up');
 		}
 		
 		// Podfiles
@@ -146,12 +146,14 @@ class Project implements \JsonSerializable
 
 		if($podFile->isFile())
 		{
-			system('pod install');
+			// Don't update podfiles if no changes came down
+			if($updateOutput != 'Already up-to-date.')
+			{
+				system('pod install');
+			}
 		}
 
 		$this->updated = time();
-
-		touch(getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
 	}
 
 	/**
