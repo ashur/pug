@@ -140,17 +140,19 @@ class Project implements \JsonSerializable
 			// Get latest changes
 			$updateOutput = system('svn up');
 		}
-		
+
+		// Bail early if no changes came down
+		if($updateOutput == 'Already up-to-date.')
+		{
+			return;
+		}
+
 		// Podfiles
 		$podFile = new \SplFileInfo($this->path->getRealPath().DIRECTORY_SEPARATOR.'Podfile');
 
 		if($podFile->isFile())
 		{
-			// Don't update podfiles if no changes came down
-			if($updateOutput != 'Already up-to-date.')
-			{
-				system('pod install');
-			}
+			system('pod install');
 		}
 
 		$this->updated = time();
