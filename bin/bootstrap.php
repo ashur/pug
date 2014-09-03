@@ -1,5 +1,10 @@
 <?php
-	
+
+// Register Pug autoloader
+require dirname(dirname(__FILE__)).'/src/Pug/Autoloader.php';
+Pug\Autoloader::register();
+
+// Register vendor autoloaders
 require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
 
 function run(Huxtable\Application $app)
