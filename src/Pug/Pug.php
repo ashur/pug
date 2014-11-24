@@ -180,6 +180,7 @@ class Pug
 	 */
 	public function update($target)
 	{
+		// Update all tracked projects
 		if($target == 'all')
 		{
 			array_walk($this->projects, function(&$item, $key)
@@ -194,16 +195,25 @@ class Pug
 		{
 			try
 			{
+				// Update single project
 				$this->getProject($target)->update();
 			}
 			catch (\Huxtable\Command\CommandInvokedException $e)
 			{
-				$file    = new \SplFileInfo($target);
-				$project = new Project(basename($file->getRealpath()), $file->getRealPath());
+				// Attempt to treat target as a path as the last resort...
+				$file = new \SplFileInfo($target);
 
-				$project->update();
+				if($file->isFile())
+				{
+					$project = new Project(basename($file->getRealpath()), $file->getRealPath());
+					$project->update();
 
-				return;
+					return;
+				}
+				else
+				{
+					throw new \Huxtable\Command\CommandInvokedException("No project or path '{$target}' was found", 1);
+				}
 			}
 		}
 
