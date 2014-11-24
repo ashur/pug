@@ -60,7 +60,7 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function($name
 	$pug->update($name);
 });
 
-$update->setUsage("update [<name>|<directory>|all]");
+$update->setUsage("update <name>|<path>|all");
 
 $commands[] = $update;
 
