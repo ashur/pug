@@ -1,6 +1,10 @@
+<img src="http://cabreramade.co/pug/pug.png" style="height: 85px; margin-top: 0px; margin-right: 20px; float: left;">
 # Pug
 
+<div style="clear: left;"></div>
+
 Quickly update local projects and their dependencies with a single command. Currently supports Subversion and Git, and [CocoaPods](http://cocoapods.org/) and [Composer](https://getcomposer.org).
+
 
 ## Installation
 
@@ -23,7 +27,6 @@ Hooray.
 Pug requires PHP 5.4 or greater
 
 ## Usage
-
 
 As we've seen, Pug can fetch updates for projects that live at arbitrary paths. Some more thrilling examples:
 
@@ -75,6 +78,3 @@ Commands are:
 
 See 'pug help <command>' to read about a specific command
 ```
-<center>
-<img src="http://cabreramade.dev/pug/pug.png" style="height: 84px; padding-top: 24px;">
-</center>
