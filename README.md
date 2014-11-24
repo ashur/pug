@@ -11,6 +11,14 @@ Quickly update local projects and their dependencies with a single command. Curr
 $ git clone --recursive https://github.com/ashur/pug.git
 ```
 
+You'll probably want to add the resulting folder to your environment `$PATH`. For example, if you're running **bash**, you'd add the following to `~/.bashrc`:
+
+```bash
+export PATH=$PATH:/path/to/pug/folder
+```
+
+This lets you run `pug` commands from anywhere on the command line, not just from inside the Pug repository folder.
+
 ### Requirements
 
 Pug requires PHP 5.4 or greater
@@ -67,3 +75,5 @@ Commands are:
 
 See 'pug help <command>' to read about a specific command
 ```
+
+![](http://cabreramade.co/pug/pug.png)
