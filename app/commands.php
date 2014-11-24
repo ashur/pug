@@ -32,7 +32,10 @@ $commands[] = new Huxtable\Command('track', 'Track a project at <path>', functio
 		throw new \Huxtable\Command\CommandInvokedException("Couldn't track project, path '{$path}' not a directory", 1);
 	}
 
-	$name = strlen($name) > 0 ? $name : $file->getFilename();
+	if($name == '')
+	{
+		$name = basename($file->getRealPath());
+	}
 
 	$pug = new Pug\Pug();
 	$pug->addProject(new Pug\Project($name, $file->getRealPath()));
