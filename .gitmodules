@@ -1,0 +1,3 @@
+[submodule "vendor/huxtable"]
+	path = vendor/huxtable
+	url = git@github.com:huxtable/framework.git
