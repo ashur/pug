@@ -2,11 +2,6 @@
 <?php
 
 /*
- * Dates
- */
-date_default_timezone_set('America/Los_Angeles');
-
-/*
  * Autoload
  */
 $autoload = require_once(__DIR__ . '/app/autoload.php');
@@ -50,6 +45,11 @@ if(isset($commands) && is_array($commands))
 }
 
 $app->unregisterCommand('version');
+
+/*
+ * Date stuff
+ */
+date_default_timezone_set($config['timezone']);
 
 // Attempt to run the requested command
 $app->run();
