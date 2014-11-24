@@ -61,7 +61,7 @@ class Pug
 		{
 			if($project->getName() == $current->getName())
 			{
-				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists. Choose another name or see 'pug help project'", 1);
+				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists.", 1);
 			}
 		}
 
