@@ -11,23 +11,13 @@ Quickly update local projects and their dependencies with a single command. Curr
 $ git clone --recursive https://github.com/ashur/pug.git
 ```
 
-For varying degrees of fun and irony, you can also use Pug to complete its own installation:
-
-```bash
-$ git clone https://github.com/ashur/pug.git
-$ cd pug
-$ ./pug update .
-```
-
-Hooray.
-
 ### Requirements
 
 Pug requires PHP 5.4 or greater
 
 ## Usage
 
-As we've seen, Pug can fetch updates for projects that live at arbitrary paths. Some more thrilling examples:
+Pug can fetch updates for projects that live at arbitrary paths. Some thrilling examples:
 
 ```bash
 $ pug update .
