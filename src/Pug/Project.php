@@ -92,7 +92,7 @@ class Project implements \JsonSerializable
 		chdir($this->path->getPathname());
 
 		// Git
-		$gitFile = new \SplFileInfo($this->path->getRealPath().DIRECTORY_SEPARATOR.'.git');
+		$gitFile = new \SplFileInfo($this->path->getRealPath() . '/.git');
 
 		if($gitFile->isDir())
 		{
@@ -102,7 +102,7 @@ class Project implements \JsonSerializable
 		}
 
 		// Subversion
-		$svnFile = new \SplFileInfo($this->path->getRealPath().DIRECTORY_SEPARATOR.'.svn');
+		$svnFile = new \SplFileInfo($this->path->getRealPath() . '/.svn');
 
 		if($svnFile->isDir())
 		{
@@ -116,12 +116,20 @@ class Project implements \JsonSerializable
 			return;
 		}
 
-		// Podfiles
-		$podFile = new \SplFileInfo($this->path->getRealPath().DIRECTORY_SEPARATOR.'Podfile');
+		// CocoaPods
+		$podFile = new \SplFileInfo($this->path->getRealPath() . '/Podfile');
 
 		if($podFile->isFile())
 		{
 			system('pod install');
+		}
+
+		// Composer
+		$composerFile = new \SplFileInfo($this->path->getRealPath() . '/composer.json');
+
+		if($podFile->isFile())
+		{
+			system('composer update');
 		}
 
 		$this->updated = time();
