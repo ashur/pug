@@ -176,11 +176,11 @@ class Pug
 	}
 
 	/**
-	 * @param	string	$app	Name of app to update
+	 * @param	string	$target		Target to update
 	 */
-	public function update($app)
+	public function update($target)
 	{
-		if($app == 'all')
+		if($target == 'all')
 		{
 			array_walk($this->projects, function(&$item, $key)
 			{
@@ -192,7 +192,19 @@ class Pug
 		}
 		else
 		{
-			$this->getProject($app)->update();
+			try
+			{
+				$this->getProject($target)->update();
+			}
+			catch (\Huxtable\Command\CommandInvokedException $e)
+			{
+				$file    = new \SplFileInfo($target);
+				$project = new Project(basename($file->getRealpath()), $file->getRealPath());
+
+				$project->update();
+
+				return;
+			}
 		}
 
 		$this->write();
