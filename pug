@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Dates
+ */
+date_default_timezone_set('America/Los_Angeles');
+
+/*
+ * Autoload
+ */
+$autoload = require_once(__DIR__ . '/app/autoload.php');
+
+foreach($autoload as $module => $path)
+{
+	$file = __DIR__ . "/{$path}/Autoloader.php";
+
+	if(file_exists($file))
+	{
+		include_once($file);
+		call_user_func("{$module}\Autoloader::register");
+	}
+}
+
+/*
+ * App configuration
+ */
+$config = require_once(__DIR__ . '/app/config.php');
+$app    = new Huxtable\Application($config['name'], $config['version']);
+
+/*
+ * Register commands
+ */
+require_once(__DIR__ . '/app/commands.php');
+
+if(isset($commands) && is_array($commands))
+{
+	foreach($commands as $command)
+	{
+		if($command instanceof Huxtable\Command)
+		{
+			$app->registerCommand($command);
+		}
+		else
+		{
+			echo "Invalid command registered in 'app/commands.php'".PHP_EOL;
+			exit(1);
+		}
+	}
+}
+
+$app->unregisterCommand('version');
+
+// Attempt to run the requested command
+$app->run();
+
+// Stop application and exit
+$app->stop();
+
+?>
