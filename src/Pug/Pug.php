@@ -203,7 +203,7 @@ class Pug
 				// Attempt to treat target as a path as the last resort...
 				$file = new \SplFileInfo($target);
 
-				if($file->isFile())
+				if($file->isDir())
 				{
 					$project = new Project(basename($file->getRealpath()), $file->getRealPath());
 					$project->update();
