@@ -1,4 +1,3 @@
-<img src="http://cabreramade.co/pug/pug.png" style="height: 85px; margin-top: 0px; margin-right: 20px; float: left;">
 # Pug
 
 <div style="clear: left;"></div>
