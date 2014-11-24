@@ -75,5 +75,3 @@ Commands are:
 
 See 'pug help <command>' to read about a specific command
 ```
-
-![](http://cabreramade.co/pug/pug.png)
