@@ -30,11 +30,11 @@ class Pug
 		{
 			if(!is_readable(PUG_CONFIG))
 			{
-				throw new \Huxtable\Application\Command\CommandInvokedException("Can't read from ~/.pug", 1);
+				throw new \Huxtable\Command\CommandInvokedException("Can't read from ~/.pug", 1);
 			}
 			if(!is_writable(PUG_CONFIG))
 			{
-				throw new \Huxtable\Application\Command\CommandInvokedException("Can't write to ~/.pug", 1);
+				throw new \Huxtable\Command\CommandInvokedException("Can't write to ~/.pug", 1);
 			}
 
 			$json = json_decode(file_get_contents(PUG_CONFIG), true);
@@ -61,7 +61,7 @@ class Pug
 		{
 			if($project->getName() == $current->getName())
 			{
-				throw new \Huxtable\Application\Command\CommandInvokedException("The project '{$project->getName()}' already exists. Choose another name or see 'pug help project'", 1);
+				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists. Choose another name or see 'pug help project'", 1);
 			}
 		}
 
@@ -101,7 +101,7 @@ class Pug
 			}
 		}
 
-		throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$name}' not found", 1);
+		throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Pug
 
 		if($removed == 0)
 		{
-			throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$name}' not found", 1);
+			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
 		}
 		
 		$this->write();
@@ -154,7 +154,7 @@ class Pug
 
 		if($updated == 0)
 		{
-			throw new \Huxtable\Application\Command\CommandInvokedException("Project '{$project->getName()}' not found", 1);
+			throw new \Huxtable\Command\CommandInvokedException("Project '{$project->getName()}' not found", 1);
 		}
 
 		$this->write();
