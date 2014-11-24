@@ -16,7 +16,7 @@ For varying degrees of fun and irony, you can also use Pug to complete its own i
 ```bash
 $ git clone https://github.com/ashur/pug.git
 $ cd pug
-$ pug update .
+$ ./pug update .
 ```
 
 Hooray.
