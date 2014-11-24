@@ -54,10 +54,10 @@ $commands[] = new Huxtable\Command('untrack', 'Stop tracking the project <name>.
 // --
 // update
 // --
-$update = new Huxtable\Command('update', 'Fetch project updates', function($app)
+$update = new Huxtable\Command('update', 'Fetch project updates', function($project)
 {
 	$pug = new Pug\Pug();
-	$pug->update($app);
+	$pug->update($project);
 });
 
 $update->setUsage("update [<app>|all]");
