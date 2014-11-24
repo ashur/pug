@@ -44,7 +44,7 @@ class Pug
 				foreach($json['projects'] as $project)
 				{
 					$updated = isset($project['updated']) ? $project['updated'] : null;
-					$this->projects[] = new Project($project['name'], $project['path'], $updated, $project['enabled']);
+					$this->projects[] = new Project($project['name'], $project['path'], $updated);
 				}
 			}
 		}
@@ -66,24 +66,6 @@ class Pug
 		}
 
 		$this->projects[] = $project;
-		$this->write();
-	}
-
-	/**
-	 * @param	string	$name
-	 */
-	public function disableProject($name)
-	{
-		$this->getProject($name)->disable();
-		$this->write();
-	}
-
-	/**
-	 * @param	string	$name
-	 */
-	public function enableProject($name)
-	{
-		$this->getProject($name)->enable();
 		$this->write();
 	}
 
@@ -162,17 +144,15 @@ class Pug
 
 	protected function sortProjects()
 	{
-		$active = [];
-		$name   = [];
+		$name = [];
 
-		// Sort projects by enabled status and then by name
+		// Sort projects by name
 		foreach($this->projects as $project)
 		{
-			$active[] = $project->isEnabled();
-			$name[]  = $project->getName();
+			$name[] = $project->getName();
 		}
-	
-		array_multisort($active, SORT_DESC, $name, SORT_ASC, $this->projects);
+
+		array_multisort($name, SORT_ASC, $this->projects);
 	}
 
 	/**
@@ -185,10 +165,7 @@ class Pug
 		{
 			array_walk($this->projects, function(&$item, $key)
 			{
-				if($item->isEnabled())
-				{
-					$item->update();
-				}
+				$item->update();
 			});
 		}
 		else
