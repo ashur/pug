@@ -127,7 +127,7 @@ class Project implements \JsonSerializable
 		// Composer
 		$composerFile = new \SplFileInfo($this->path->getRealPath() . '/composer.json');
 
-		if($podFile->isFile())
+		if($composerFile->isFile())
 		{
 			system('composer update');
 		}
