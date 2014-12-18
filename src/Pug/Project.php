@@ -74,21 +74,9 @@ class Project implements \JsonSerializable
 			return;
 		}
 
-		$title = ucwords($this->name);
+		echo "Updating '{$this->name}'...".PHP_EOL;
 
-		// Figlet
-		exec('which figlet', $output, $figlet);
-
-		if($figlet == 0)
-		{
-			system('echo');
-			system("figlet -f smslant '{$title}'");	
-		}
-		else
-		{
-			echo $title.PHP_EOL;
-		}
-	
+		$updateOutput = false;
 		chdir($this->path->getPathname());
 
 		// Git
@@ -130,6 +118,11 @@ class Project implements \JsonSerializable
 		if($composerFile->isFile())
 		{
 			system('composer update');
+		}
+
+		if(!$updateOutput)
+		{
+			throw new \Huxtable\Command\CommandInvokedException("No supported version control found at '{$this->path}'", 1);
 		}
 
 		$this->updated = time();

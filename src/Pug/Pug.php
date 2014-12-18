@@ -182,7 +182,7 @@ class Pug
 
 				if($file->isDir())
 				{
-					$project = new Project(basename($file->getRealpath()), $file->getRealPath());
+					$project = new Project($file->getRealpath(), $file->getRealPath());
 					$project->update();
 
 					return;
