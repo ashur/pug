@@ -9,11 +9,16 @@ $commands = [];
 // --
 // list
 // --
-$commands[] = new Huxtable\Command('list', 'List all tracked projects', function()
+$list = new Huxtable\Command('list', 'List all tracked projects', function()
 {
 	$pug = new Pug\Pug();
 	listProjects($pug->getProjects());
 });
+
+$list->addAlias('ls');
+$list->setUsage("[list|ls]");
+
+$commands[] = $list;
 
 // --
 // track
@@ -64,7 +69,7 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function($name
 });
 
 $update->addAlias('up');
-$update->setUsage("update <name>|<path>|all");
+$update->setUsage("[update|up] <name>|<path>|all");
 
 $commands[] = $update;
 
