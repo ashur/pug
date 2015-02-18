@@ -55,7 +55,7 @@ class Project implements \JsonSerializable
 	 */
 	public function getUpdated()
 	{
-		return !is_null($this->updated) ? date('D M j H:i', $this->updated) : "-";
+		return $this->updated;
 	}
 
 	/**
@@ -65,13 +65,11 @@ class Project implements \JsonSerializable
 	{
 		if(!$this->path->isDir())
 		{
-			echo "Project root '{$this->path}' is not a directory".PHP_EOL;
-			return;
+			return "Project root '{$this->path}' is not a directory";
 		}
 		if(!$this->path->isReadable())
 		{
-			echo "Project root '{$this->path}' isn't readable".PHP_EOL;
-			return;
+			return "Project root '{$this->path}' isn't readable";
 		}
 
 		echo "Updating '{$this->name}'...".PHP_EOL;

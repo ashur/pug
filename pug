@@ -44,6 +44,7 @@ if(isset($commands) && is_array($commands))
 	}
 }
 
+$app->registerDefaultCommand ($commands['list']);
 $app->unregisterCommand('version');
 
 /*

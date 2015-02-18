@@ -61,7 +61,7 @@ class Pug
 		{
 			if($project->getName() == $current->getName())
 			{
-				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists.", 1);
+				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists. See 'pug list'", 1);
 			}
 		}
 
@@ -163,9 +163,9 @@ class Pug
 		// Update all tracked projects
 		if($target == 'all')
 		{
-			array_walk($this->projects, function(&$item, $key)
+			array_walk($this->projects, function(&$project, $key)
 			{
-				$item->update();
+				$project->update();
 			});
 		}
 		else
@@ -182,10 +182,19 @@ class Pug
 
 				if($file->isDir())
 				{
+					// Let's check to see if a tracked project is already registered at this path
+					foreach ($this->projects as $project)
+					{
+						if ($project->getPath() == $file->getRealpath())
+						{
+							$project->update();
+							$this->write();
+							return;
+						}
+					}
+
 					$project = new Project($file->getRealpath(), $file->getRealPath());
 					$project->update();
-
-					return;
 				}
 				else
 				{
