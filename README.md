@@ -28,9 +28,15 @@ Pug requires PHP 5.4 or greater
 Pug can fetch updates for projects that live at arbitrary paths. Some thrilling examples:
 
 ```bash
-$ pug update .
 $ pug update ../plank
 $ pug update ~/Developer/plank
+```
+
+Update the project at your current working directory:
+
+```bash
+$ pug update
+$ pug update ./
 ```
 
 Admittedly, the convenience here is small for simple projects, but Pug gives you a tiny leg up as things get more complicated. A single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like CocoaPods.
@@ -41,8 +47,9 @@ If you juggle multiple projects that need to stay up-to-date, Pug really starts 
 
 ```bash
 $ pug track ~/Developer/plank
- plank           -                   /Users/ashur/Developer/plank
- pug             Mon Nov 24 08:04    /Users/ashur/Developer/pug
+total 2
+Feb 18 08:46 plank -> /Users/ashur/Developer/plank
+Feb 18 08:35 pug -> /Users/ashur/Developer/pug
 ```
 
 Need to get up to speed across multiple projects every morning? It's a breeze, Louise:
@@ -57,6 +64,21 @@ Want to stop tracking a project? We've got that too:
 pug untrack plank
 ```
 
+### Shortcuts
+
+You look like a busy person. Pug has short command aliases for listing tracked apps:
+
+```
+$ pug list|ls
+```
+
+and for updating:
+
+```
+$ pug update|up
+```
+
+Just for you, Ace.
 
 ## pug help
 
