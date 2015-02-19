@@ -58,7 +58,7 @@ Need to get up to speed across multiple projects every morning? It's a breeze, L
 $ pug update all
 ```
 
-Want to stop tracking a project? We've got that too:
+Finished a project and want to tidy up a bit? Untrack, Jack:
 
 ```bash
 pug untrack plank
@@ -66,7 +66,7 @@ pug untrack plank
 
 ### Shortcuts
 
-You look like a busy person. Pug has short command aliases for listing tracked apps:
+Pug has short command aliases for listing tracked apps:
 
 ```
 $ pug list|ls
@@ -78,7 +78,6 @@ and for updating:
 $ pug update|up
 ```
 
-Just for you, Ace.
 
 ## pug help
 
