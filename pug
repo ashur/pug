@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+$config = require_once(__DIR__ . '/app/config.php');
+
 /*
  * Autoload
  */
@@ -15,13 +17,31 @@ foreach($autoload as $module => $path)
 		include_once($file);
 		call_user_func("{$module}\Autoloader::register");
 	}
+	else
+	{
+		$install = strtolower (readline ("{$config['name']}: Install missing dependencies [yes]? "));
+
+		switch ($install)
+		{
+			case '':
+			case 'y':
+			case 'yes':
+				chdir (__DIR__);
+				exec ('git submodule update --init');
+				exit (0);
+				break;
+
+			default:
+				exit (1);
+				break;
+		}
+	}
 }
 
 /*
  * App configuration
  */
-$config = require_once(__DIR__ . '/app/config.php');
-$app    = new Huxtable\Application($config['name'], $config['version']);
+$app = new Huxtable\Application($config['name'], $config['version']);
 
 /*
  * Register commands
