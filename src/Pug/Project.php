@@ -47,7 +47,10 @@ class Project implements \JsonSerializable
 	 */
 	public function getPath()
 	{
-		return $this->path->getPathname();
+		$path = $this->path->getPathname();
+		$path = str_replace (getenv('HOME'), '~', $path);
+
+		return $path;
 	}
 
 	/**
