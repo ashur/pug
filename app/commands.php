@@ -16,7 +16,7 @@ $list = new Huxtable\Command('list', 'List all tracked projects', function()
 {
 	$output = new Output();
 	$pug = new Pug\Pug();
-	$projects = $pug->getProjects();
+	$projects = $pug->getProjects ($this->getOptionValue('t'));
 
 	if (count ($projects) < 1)
 	{
@@ -24,14 +24,16 @@ $list = new Huxtable\Command('list', 'List all tracked projects', function()
 	}
 	else
 	{
-		$output->string (listProjects ($pug->getProjects()));
+		$output->string ( listProjects ( $pug->getProjects() ) );
 	}
 
 	return $output->flush();
 });
 
 $list->addAlias('ls');
-$list->setUsage("[list|ls]");
+$list->setUsage("[list|ls] [-t]");
+
+$list->registerOption('t', 'Sort by time modified (most recently modified first) before sorting projects by name');
 
 $commands['list'] = $list;
 

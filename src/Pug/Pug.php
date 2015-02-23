@@ -87,10 +87,16 @@ class Pug
 	}
 
 	/**
+	 * @param	boolean	$sortByUpdated
 	 * @return	array
 	 */
-	public function getProjects()
+	public function getProjects ($sortByUpdated = false)
 	{
+		if ($sortByUpdated)
+		{
+			$this->sortProjects ($sortByUpdated);
+		}
+
 		return $this->projects;
 	}
 
@@ -142,14 +148,25 @@ class Pug
 		$this->write();
 	}
 
-	protected function sortProjects()
+	/**
+	 * @param	boolean	$sortByUpdated
+	 */
+	protected function sortProjects($sortByUpdated = false)
 	{
 		$name = [];
+		$updated = [];
 
 		// Sort projects by name
 		foreach($this->projects as $project)
 		{
 			$name[] = $project->getName();
+			$updated[] = $project->getUpdated();
+		}
+
+		if ($sortByUpdated == true)
+		{
+			array_multisort($updated, SORT_DESC, $name, SORT_ASC, $this->projects);
+			return;
 		}
 
 		array_multisort($name, SORT_ASC, $this->projects);
