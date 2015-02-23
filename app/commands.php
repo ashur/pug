@@ -60,7 +60,7 @@ $commands['track'] = new Huxtable\Command('track', 'Track a project at <path>', 
 	}
 
 	$pug = new Pug\Pug();
-	$pug->addProject (new Pug\Project ($name, $file->getRealPath(), time()));
+	$pug->addProject (new Pug\Project ($name, $file->getRealPath(), $file->getCTime()));
 
 	return listProjects($pug->getProjects());
 });
