@@ -47,10 +47,7 @@ class Project implements \JsonSerializable
 	 */
 	public function getPath()
 	{
-		$path = $this->path->getPathname();
-		$path = str_replace (getenv('HOME'), '~', $path);
-
-		return $path;
+		return $this->path->getPathname();
 	}
 
 	/**
@@ -68,11 +65,11 @@ class Project implements \JsonSerializable
 	{
 		if(!$this->path->isDir())
 		{
-			return "Project root '{$this->path}' is not a directory";
+			throw new \Huxtable\Command\CommandInvokedException ("Project root '{$this->path}' is not a directory", 1);
 		}
 		if(!$this->path->isReadable())
 		{
-			return "Project root '{$this->path}' isn't readable";
+			throw new \Huxtable\Command\CommandInvokedException ("Project root '{$this->path}' isn't readable", 1);
 		}
 
 		echo "Updating '{$this->name}'...".PHP_EOL;

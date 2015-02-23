@@ -106,13 +106,14 @@ function listProjects(array $projects)
 	foreach($projects as $project)
 	{
 		$updated = is_null ($project->getUpdated()) ? '-' : Format::date ($project->getUpdated());
+		$path = str_replace (getenv('HOME'), '~', $project->getPath());
 
 		$output->line (sprintf
 		(
 			'%-12s %s -> %s'
 			, $updated
 			, Output::colorize ($project->getName(), 'purple')
-			, $project->getPath()
+			, $path
 		));
 	}
 
