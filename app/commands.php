@@ -79,14 +79,24 @@ $commands['untrack'] = new Huxtable\Command('untrack', 'Stop tracking the projec
 // --
 // update
 // --
-$update = new Huxtable\Command('update', 'Fetch project updates', function($name='.')
+$update = new Huxtable\Command('update', 'Fetch project updates', function()
 {
 	$pug = new Pug\Pug();
-	return $pug->update($name);
+	$sources = func_get_args();
+
+	if (count ($sources) == 0)
+	{
+		$sources[] = '.';
+	}
+
+	for ($i=0; $i < count ($sources); $i++)
+	{
+		$pug->update ($sources[$i]);
+	}
 });
 
 $update->addAlias('up');
-$update->setUsage("[update|up] [<name>|<path>|all]");
+$update->setUsage("update [all|<path>|<project>...]");
 
 $commands['update'] = $update;
 
