@@ -1,6 +1,6 @@
-# Pug
-
-<div style="clear: left;"></div>
+<h3 align="center">
+  <img src="assets/pug.png" alt="pug" />
+</h3>
 
 Quickly update local projects and their dependencies with a single command. Currently supports Subversion and Git, and [CocoaPods](http://cocoapods.org/) and [Composer](https://getcomposer.org).
 
@@ -78,6 +78,40 @@ and for updating:
 $ pug update|up
 ```
 
+## Under the hood
+
+Okay so but what is Pug _actually_ doing when it updates? In order of operations:
+
+### SCM
+
+If a project is using Git, `pug update` runs two commands:
+
+```bash
+git pull
+git submodule update --init --recursive
+```
+
+If it is using Subversion, it runs:
+
+```bash
+svn up
+```
+
+### Dependencies
+
+If Pug detects CocoaPods, it runs:
+
+```bash
+pod install
+```
+
+If Pug detects Composer, it runs:
+
+```bash
+composer update
+```
+
+### Composer
 
 ## pug help
 
