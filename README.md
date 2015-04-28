@@ -1,6 +1,4 @@
-<h3 align="center">
-  <img src="assets/pug.png" alt="pug" />
-</h3>
+![pug](http://pug.sh.s3.amazonaws.com/pug.png)
 
 Quickly update local projects and their dependencies with a single command. Pug currently supports Subversion and Git, and [CocoaPods](https://cocoapods.org/) and [Composer](https://getcomposer.org).
 
