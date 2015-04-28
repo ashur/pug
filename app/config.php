@@ -2,11 +2,6 @@
 
 return array(
 	/*
-	 * Timezone
-	 */
-	'timezone' => 'America/Los_Angeles',
-
-	/*
 	 * Application name
 	 */
 	'name' => 'pug',
@@ -14,7 +9,7 @@ return array(
 	/*
 	 * Application version
 	 */
-	'version' => '0.2.3'
+	'version' => '0.2.4'
 );
 
 ?>
