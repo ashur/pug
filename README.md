@@ -2,30 +2,20 @@
   <img src="assets/pug.png" alt="pug" />
 </h3>
 
-Quickly update local projects and their dependencies with a single command. Currently supports Subversion and Git, and [CocoaPods](http://cocoapods.org/) and [Composer](https://getcomposer.org).
+Quickly update local projects and their dependencies with a single command. Pug currently supports Subversion and Git, and [CocoaPods](https://cocoapods.org/) and [Composer](https://getcomposer.org).
 
 
-## Installation
+## Setup
 
-```bash
-$ git clone --recursive https://github.com/ashur/pug.git
-```
+> See [Installation](INSTALL.md) for details on getting started with Pug
 
-You'll probably want to add the resulting folder to your environment `$PATH`. For example, if you're running **bash**, you'd add the following to `~/.bashrc`:
+### Configuration
 
-```bash
-export PATH=$PATH:/path/to/pug/folder
-```
-
-This lets you run `pug` commands from anywhere on the command line, not just from inside the Pug repository folder.
-
-### Requirements
-
-Pug requires PHP 5.4 or greater
+If a timezone isn't set in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
 
 ## Usage
 
-Pug can fetch updates for projects that live at arbitrary paths. Some thrilling examples:
+Pug can [fetch updates](#underthehood) for projects that live at arbitrary paths. Some thrilling examples:
 
 ```bash
 $ pug update ../plank
@@ -39,48 +29,36 @@ $ pug update
 $ pug update ./
 ```
 
-Admittedly, the convenience here is small for simple projects, but Pug gives you a tiny leg up as things get more complicated. A single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like CocoaPods.
+Admittedly, the convenience here is small for simple projects, but Pug gives you a tiny leg up as things get more complicated. A single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer.
 
-### Tracking
+
+## Tracking
 
 If you juggle multiple projects that need to stay up-to-date, Pug really starts to shine with tracking:
 
 ```bash
 $ pug track ~/Developer/plank
 total 2
-Feb 18 08:46 plank -> /Users/ashur/Developer/plank
-Feb 18 08:35 pug -> /Users/ashur/Developer/pug
+Feb 11  2014 plank -> ~/Developer/plank
+Apr 27 21:37 pug -> ~/Developer/pug
 ```
 
-Need to get up to speed across multiple projects every morning? It's a breeze, Louise:
+Updating all your projects at once is a breeze:
 
 ```bash
 $ pug update all
 ```
 
-Finished a project and want to tidy up a bit? Untrack, Jack:
+Finished a project and want to tidy up a bit?
 
 ```bash
-pug untrack plank
+$ pug untrack plank
 ```
 
-### Shortcuts
-
-Pug has short command aliases for listing tracked apps:
-
-```
-$ pug list|ls
-```
-
-and for updating:
-
-```
-$ pug update|up
-```
 
 ## Under the hood
 
-Okay so but what is Pug _actually_ doing when it updates? In order of operations:
+Okay so but what is Pug doing when it updates? In order of operations:
 
 ### SCM
 
@@ -111,7 +89,6 @@ If Pug detects Composer, it runs:
 composer update
 ```
 
-### Composer
 
 ## pug help
 
@@ -119,7 +96,7 @@ Command-specific help is available on the command line:
 
 ```bash
 $ pug help
-usage: pug <command> [<args>]
+usage: pug [--version] <command> [<args>]
 
 Commands are:
    help       Display help information about pug
@@ -129,4 +106,18 @@ Commands are:
    update     Fetch project updates
 
 See 'pug help <command>' to read about a specific command
+```
+
+### Shortcuts
+
+Pug has short command aliases for listing tracked apps:
+
+```
+$ pug list|ls
+```
+
+and for updating:
+
+```
+$ pug update|up
 ```
