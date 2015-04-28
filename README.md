@@ -36,15 +36,28 @@ If you juggle multiple projects that need to stay up-to-date, Pug really starts 
 
 ```bash
 $ pug track ~/Developer/plank
-total 2
+total 4
+Feb 21 12:04 dotfiles -> ~/.dotfiles
 Feb 11  2014 plank -> ~/Developer/plank
 Apr 27 21:37 pug -> ~/Developer/pug
+Apr 27 20:37 tapas -> ~/Developer/tapas
 ```
 
 Updating all your projects at once is a breeze:
 
 ```bash
 $ pug update all
+Updating 'dotfiles'...
+Already up-to-date.
+
+Updating 'plank'...
+Already up-to-date.
+
+Updating 'pug'...
+Already up-to-date.
+
+Updating 'tapas'...
+Already up-to-date.
 ```
 
 Finished a project and want to tidy up a bit?
@@ -56,11 +69,11 @@ $ pug untrack plank
 
 ## Under the hood
 
-Okay so but what is Pug doing when it updates? In order of operations:
+Okay so but what is Pug doing when it updates? Great question. In order of operations:
 
 ### SCM
 
-If a project is using Git, `pug update` runs two commands:
+If a project is using Git:
 
 ```bash
 git pull
