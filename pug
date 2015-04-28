@@ -64,13 +64,38 @@ if(isset($commands) && is_array($commands))
 	}
 }
 
-$app->registerDefaultCommand ($commands['list']);
 $app->unregisterCommand('version');
 
 /*
- * Date stuff
+ * User config
  */
-date_default_timezone_set($config['timezone']);
+$userConfigPath = __DIR__ . '/config.php';
+
+if( !file_exists($userConfigPath) )
+{
+	copy( $userConfigPath . '.dist', $userConfigPath );
+}
+
+$userConfig = require_once( $userConfigPath );
+
+/*
+ * Timezone
+ */
+$timezone = 'UTC';
+
+// Override with value from php.ini if set
+if( strlen( $iniTimezone = ini_get( 'date.timezone' ) ) > 0 )
+{
+	$timezone = $iniTimezone;
+}
+
+// Override with value from config.php if set
+if( isset( $userConfig['timezone'] ) )
+{
+	$timezone = $userConfig['timezone'];
+}
+
+date_default_timezone_set( $timezone );
 
 // Attempt to run the requested command
 $app->run();

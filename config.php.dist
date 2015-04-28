@@ -1,0 +1,10 @@
+<?php
+
+return array(
+	/*
+	 * Timezone is chosen in order:
+	 */
+	// 'timezone' => 'America/Los_Angeles'
+);
+
+?>
