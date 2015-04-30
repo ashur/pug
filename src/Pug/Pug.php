@@ -43,8 +43,9 @@ class Pug
 			{
 				foreach($json['projects'] as $project)
 				{
-					$updated = isset($project['updated']) ? $project['updated'] : null;
-					$this->projects[] = new Project($project['name'], $project['path'], $updated);
+					$enabled = isset( $project['enabled'] ) ? $project['enabled'] : true;
+					$updated = isset( $project['updated'] ) ? $project['updated'] : null;
+					$this->projects[] = new Project($project['name'], $project['path'], $enabled, $updated);
 				}
 			}
 		}
@@ -66,6 +67,58 @@ class Pug
 		}
 
 		$this->projects[] = $project;
+		$this->write();
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	void
+	 */
+	public function disableProject( $name )
+	{
+		$count = count($this->projects);
+		$disabled = 0;
+
+		for( $i=0; $i<$count; $i++ )
+		{
+			if( $this->projects[$i]->getName() == $name )
+			{
+				$this->projects[$i]->disable();
+				$disabled++;
+			}
+		}
+
+		if($disabled == 0)
+		{
+			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+		}
+
+		$this->write();
+	}
+	
+	/**
+	 * @param	string	$name
+	 * @return	void
+	 */
+	public function enableProject( $name )
+	{
+		$count = count($this->projects);
+		$enabled = 0;
+
+		for( $i=0; $i<$count; $i++ )
+		{
+			if( $this->projects[$i]->getName() == $name )
+			{
+				$this->projects[$i]->enable();
+				$enabled++;
+			}
+		}
+
+		if($enabled == 0)
+		{
+			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+		}
+
 		$this->write();
 	}
 
@@ -175,14 +228,17 @@ class Pug
 	/**
 	 * @param	string	$target		Target to update
 	 */
-	public function update($target)
+	public function update( $target )
 	{
 		// Update all tracked projects
-		if($target == 'all')
+		if( $target == 'all' )
 		{
 			array_walk($this->projects, function(&$project, $key)
 			{
-				$project->update();
+				if( $project->isEnabled() )
+				{
+					$project->update();
+				}
 			});
 		}
 		else

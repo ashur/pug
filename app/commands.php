@@ -10,37 +10,9 @@ use \Huxtable\Output;
 $commands = [];
 
 // --
-// list
+// !add
 // --
-$list = new Huxtable\Command('list', 'List all tracked projects', function()
-{
-	$output = new Output();
-	$pug = new Pug\Pug();
-	$projects = $pug->getProjects ($this->getOptionValue('t'));
-
-	if (count ($projects) < 1)
-	{
-		$output->line ('pug: Not tracking any projects. See \'pug help\'');
-	}
-	else
-	{
-		$output->string ( listProjects ( $pug->getProjects() ) );
-	}
-
-	return $output->flush();
-});
-
-$list->addAlias('ls');
-$list->setUsage("[list|ls] [-t]");
-
-$list->registerOption('t', 'Sort by time modified (most recently modified first) before sorting projects by name');
-
-$commands['list'] = $list;
-
-// --
-// track
-// --
-$commands['track'] = new Huxtable\Command('track', 'Track a project at <path>', function($path, $name='')
+$add = new Huxtable\Command('add', 'Start tracking a new project', function( $name, $path )
 {
 	$file = new SplFileInfo($path);
 
@@ -54,21 +26,46 @@ $commands['track'] = new Huxtable\Command('track', 'Track a project at <path>', 
 		throw new \Huxtable\Command\CommandInvokedException("Couldn't track project, path '{$path}' not a directory", 1);
 	}
 
-	if($name == '')
-	{
-		$name = basename($file->getRealPath());
-	}
-
 	$pug = new Pug\Pug();
-	$pug->addProject (new Pug\Project ($name, $file->getRealPath(), $file->getCTime()));
+	$pug->addProject( new Pug\Project( $name, $file->getRealPath(), true, $file->getCTime() ) );
 
 	return listProjects($pug->getProjects());
 });
 
+$add->addAlias( 'track' );
+
+$commands['add'] = $add;
+
 // --
-// untrack
+// !disable
 // --
-$commands['untrack'] = new Huxtable\Command('untrack', 'Stop tracking the project <name>.', function($name)
+$disable = new Huxtable\Command('disable', 'Exclude project from \'all\' updates', function( $name )
+{
+	$pug = new Pug\Pug();
+	$pug->disableProject( $name );
+
+	return listProjects( $pug->getProjects() );
+});
+
+$commands['disable'] = $disable;
+
+// --
+// !enable
+// --
+$enable = new Huxtable\Command('enable', 'Include project in \'all\' updates', function( $name )
+{
+	$pug = new Pug\Pug();
+	$pug->enableProject( $name );
+
+	return listProjects( $pug->getProjects() );
+});
+
+$commands['enable'] = $enable;
+
+// --
+// !rm
+// --
+$rm = new Huxtable\Command('rm', 'Stop tracking a project', function( $name )
 {
 	$pug = new Pug\Pug();
 	$pug->removeProject($name);
@@ -76,22 +73,65 @@ $commands['untrack'] = new Huxtable\Command('untrack', 'Stop tracking the projec
 	return listProjects ($pug->getProjects());
 });
 
+$rm->addAlias( 'untrack' );
+
+$commands['rm'] = $rm;
+
 // --
-// update
+// !show
+// --
+$show = new Huxtable\Command('show', 'Show tracked projects', function( $name='' )
+{
+	$output = new Output();
+	$pug = new Pug\Pug();
+	$projects = $pug->getProjects ($this->getOptionValue('t'));
+
+	if (count ($projects) < 1)
+	{
+		$output->line ('pug: Not tracking any projects. See \'pug help\'');
+	}
+	else
+	{
+		$output->string ( listProjects ( $pug->getProjects(), $name ) );
+	}
+
+	return $output->flush();
+});
+
+$show->addAlias('list');
+$show->addAlias('ls');
+
+$showUsage = <<<USAGE
+show [options]
+
+OPTIONS
+     -t  sort by time updated, recently updated first
+
+
+USAGE;
+
+$show->setUsage($showUsage);
+
+$show->registerOption('t', 'Sort by time modified (most recently modified first) before sorting projects by name');
+
+$commands['show'] = $show;
+
+// --
+// !update
 // --
 $update = new Huxtable\Command('update', 'Fetch project updates', function()
 {
 	$pug = new Pug\Pug();
 	$sources = func_get_args();
 
-	if (count ($sources) == 0)
+	if( count( $sources ) == 0 )
 	{
 		$sources[] = '.';
 	}
 
-	for ($i=0; $i < count ($sources); $i++)
+	for( $i=0; $i < count ($sources); $i++ )
 	{
-		$pug->update ($sources[$i]);
+		$pug->update( $sources[$i] );
 	}
 });
 
@@ -102,8 +142,9 @@ $commands['update'] = $update;
 
 /**
  * @param	array	$projects
+ * @param	string	$name
  */
-function listProjects(array $projects)
+function listProjects( array $projects, $name='' )
 {
 	if (count ($projects) < 1)
 	{
@@ -111,20 +152,48 @@ function listProjects(array $projects)
 	}
 
 	$output = new Output;
-	$output->line ('total ' . count ($projects));
 
-	foreach($projects as $project)
+	// List all projects
+	if( strlen( $name ) == 0 )
 	{
-		$updated = is_null ($project->getUpdated()) ? '-' : Format::date ($project->getUpdated());
-		$path = str_replace (getenv('HOME'), '~', $project->getPath());
+		foreach($projects as $project)
+		{
+			$output->line (sprintf
+			(
+				'%s %s'
+				, $project->isEnabled() ? Output::colorize( '*', 'green' ) : ' '
+				, $project->getName()
+			));
+		}
+	}
+	else
+	{
+		$listed = false;
 
-		$output->line (sprintf
-		(
-			'%-12s %s -> %s'
-			, $updated
-			, Output::colorize ($project->getName(), 'purple')
-			, $path
-		));
+		foreach($projects as $project)
+		{
+			if( $project->getName() == $name )
+			{
+				$updated = is_null ($project->getUpdated()) ? '-' : Format::date ($project->getUpdated());
+				$path = str_replace (getenv('HOME'), '~', $project->getPath());
+
+				$output->line (sprintf
+				(
+					'%s %-12s  %s'
+					, $project->isEnabled() ? Output::colorize( '*', 'green' ) : ' '
+					, $updated
+					, $path
+				));
+				
+
+				$listed = true;
+			}
+		}
+
+		if( !$listed )
+		{
+			throw new \Huxtable\Command\CommandInvokedException( "Project '{$name}' not found", 1 );
+		}
 	}
 
 	return $output->flush();
