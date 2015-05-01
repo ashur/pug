@@ -9,9 +9,9 @@ Quickly update local projects and their dependencies with a single command. Pug 
 
 ### Configuration
 
-If a timezone isn't set in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
+If a timezone isn't set in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php.dist) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
 
-## Usage
+## Update
 
 Pug can [fetch updates](#underthehood) for projects that live at arbitrary paths. Some thrilling examples:
 
@@ -27,44 +27,69 @@ $ pug update
 $ pug update ./
 ```
 
-Admittedly, the convenience here is small for simple projects, but Pug gives you a tiny leg up as things get more complicated. A single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer.
+Admittedly, the convenience here is small for simple projects. As things get more complicated, however, Pug gives you a tiny leg up: a single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer.
 
+```bash
+$ pug up ~/Developer/access
+Updating '~/Developer/access'...
+Already up-to-date.
+Submodule path 'vendor/huxtable': checked out '0cccd17fe78fdd9a778f5025b244eafc68553764'
+```
+
+> 💡 **Tip**: Save yourself a few keystrokes with `pug up`
 
 ## Tracking
 
 If you juggle multiple projects that need to stay up-to-date, Pug really starts to shine with tracking:
 
 ```bash
-$ pug track ~/Developer/plank
-total 4
-Feb 21 12:04 dotfiles -> ~/.dotfiles
-Feb 11  2014 plank -> ~/Developer/plank
-Apr 27 21:37 pug -> ~/Developer/pug
-Apr 27 20:37 tapas -> ~/Developer/tapas
+$ pug add tapas ~/Developer/tapas
+* dotfiles
+* plank
+* tapas
 ```
 
-Updating all your projects at once is a breeze:
+Updating a tracked project is easy:
 
 ```bash
-$ pug update all
+$ pug up tapas
+```
+
+Updating all your projects at once is even easier:
+
+```bash
+$ pug up all
 Updating 'dotfiles'...
 Already up-to-date.
 
 Updating 'plank'...
 Already up-to-date.
 
-Updating 'pug'...
+Updating 'tapas'...
+Already up-to-date.
+```
+
+### Enable/Disable
+Need to focus on a subset of your projects for a while? Disable anything you don't need:
+
+```bash
+$ pug disable dotfiles
+  dotfiles
+* plank
+* tapas
+```
+
+Pug will hold onto the project definition but skip it when you `update all`:
+
+```bash
+$ pug update all
+Updating 'plank'...
 Already up-to-date.
 
 Updating 'tapas'...
 Already up-to-date.
 ```
 
-Finished a project and want to tidy up a bit?
-
-```bash
-$ pug untrack plank
-```
 
 
 ## Under the hood
@@ -110,25 +135,13 @@ $ pug help
 usage: pug [--version] <command> [<args>]
 
 Commands are:
+   add        Start tracking a new project
+   disable    Exclude project from 'all' updates
+   enable     Include project in 'all' updates
    help       Display help information about pug
-   list       List all tracked projects
-   track      Track a project at <path>
-   untrack    Stop tracking the project <name>.
+   rm         Stop tracking a project
+   show       Show tracked projects
    update     Fetch project updates
 
 See 'pug help <command>' to read about a specific command
-```
-
-### Shortcuts
-
-Pug has short command aliases for listing tracked apps:
-
-```
-$ pug list|ls
-```
-
-and for updating:
-
-```
-$ pug update|up
 ```
