@@ -7,9 +7,14 @@ Quickly update local projects and their dependencies with a single command. Pug 
 
 > See [Installation](INSTALL.md) for details on getting started with Pug
 
+### Requirements
+
+Pug requires PHP 5.4 or greater
+
 ### Configuration
 
-If a timezone isn't set in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php.dist) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
+If a timezone isn't defined in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php.dist) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
+
 
 ## Update
 
@@ -124,7 +129,6 @@ If Pug detects Composer, it runs:
 ```bash
 composer update
 ```
-
 
 ## pug help
 
