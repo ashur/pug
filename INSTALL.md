@@ -21,7 +21,3 @@ $ ln -s /path/to/pug/pug /usr/local/bin/pug
 ```
 
 This lets you run `pug` commands from anywhere on the command line, not just from inside the Pug repository folder.
-
-## Requirements
-
-Pug requires PHP 5.4 or greater
