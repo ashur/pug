@@ -5,6 +5,8 @@
  */
 namespace Pug;
 
+use \Huxtable\Output;
+
 class Project implements \JsonSerializable
 {
 	/**
@@ -58,11 +60,55 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * Execute a command, generate friendly output and return the result
+	 * 
+	 * @param	string	$command
+	 * @return	boolean
+	 */
+	public function executeCommand( $command )
+	{
+		$command = $command . ' 2>&1';	// force output to be where we need it
+
+		$result = exec( $command, $output, $exitCode );
+
+		if( count( $output ) == 0 )
+		{
+			echo 'done.' . PHP_EOL;
+		}
+		else
+		{
+			echo PHP_EOL;
+			$color = $exitCode == 0 ? 'green' : 'red';
+
+			foreach( $output as $line )
+			{
+				if( strlen( $line ) > 0 )
+				{
+					echo Output::colorize( '   > ' . $line, $color ) . PHP_EOL;
+				}
+			}
+		}
+
+		return [
+			'result' => $result,
+			'exitCode' => $exitCode
+		];
+	}
+
+	/**
 	 * @return	boolean
 	 */
 	public function isEnabled()
 	{
 		return $this->enabled;
+	}
+
+	/**
+	 * @return	\SplFileInfo
+	 */
+	public function getFileInfo()
+	{
+		return $this->path;
 	}
 
 	/**
@@ -94,65 +140,81 @@ class Project implements \JsonSerializable
 	 */
 	public function update()
 	{
-		if(!$this->path->isDir())
+		if( !$this->getFileInfo()->isDir() )
 		{
-			throw new \Huxtable\Command\CommandInvokedException ("Project root '{$this->path}' is not a directory", 1);
+			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' is not a valid directory" );
 		}
-		if(!$this->path->isReadable())
+		if( !$this->getFileInfo()->isReadable() )
 		{
-			throw new \Huxtable\Command\CommandInvokedException ("Project root '{$this->path}' isn't readable", 1);
+			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' isn't readable" );
 		}
 
-		echo "Updating '{$this->name}'...".PHP_EOL;
+		// --
+		// SCM
+		// --
+		$gitFile = new \SplFileInfo( $this->path->getRealPath() . '/.git' );
+		$svnFile = new \SplFileInfo( $this->path->getRealPath() . '/.svn' );
 
-		$updateOutput = false;
+		$scmFound = $gitFile->isDir() || $svnFile->isDir();
+		if( !$scmFound )
+		{
+			// @todo	Improve detection by traversing up the path (in case the working directory is a descendent of a directory that is under SCM)
+			throw new MissingSourceControlException( "Source control not found in '{$this->path->getPathname()}'" );
+		}
+
+		echo "Updating '{$this->getName()}'... ";
+		echo PHP_EOL . PHP_EOL;
+
 		chdir($this->path->getPathname());
 
+		// --
 		// Git
-		$gitFile = new \SplFileInfo($this->path->getRealPath() . '/.git');
-
-		if($gitFile->isDir())
+		// --
+		if( $gitFile->isDir() )
 		{
-			// Get latest changes
-			$updateOutput = system('git pull');
-			system('git submodule update --init --recursive');
+			echo ' • Pulling... ';
+			$resultGit = $this->executeCommand( 'git pull' );
+
+			$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
+			if( $modulesFile->isFile() )
+			{
+				echo ' • Updating submodules... ';
+				$this->executeCommand( 'git submodule update --init --recursive' );
+			}
 		}
 
+		// --
 		// Subversion
-		$svnFile = new \SplFileInfo($this->path->getRealPath() . '/.svn');
-
-		if($svnFile->isDir())
+		// --
+		if( $svnFile->isDir() )
 		{
-			// Get latest changes
-			$updateOutput = system('svn up');
+			echo ' • Updating working copy... ';
+			$resultSvn = $this->executeCommand( 'svn up' );
 		}
 
-		// Bail early if no changes came down
-		if($updateOutput == 'Already up-to-date.')
-		{
-			return;
-		}
-
+		// --
 		// CocoaPods
+		// --
 		$podFile = new \SplFileInfo($this->path->getRealPath() . '/Podfile');
 
 		if($podFile->isFile())
 		{
-			system('pod install');
+			echo ' • Updating CocoaPods... ';
+			$this->executeCommand( 'pod install' );
 		}
 
+		// --
 		// Composer
+		// --
 		$composerFile = new \SplFileInfo($this->path->getRealPath() . '/composer.json');
 
 		if($composerFile->isFile())
 		{
-			system('composer update');
+			echo ' • Updating Composer... ';
+			$this->executeCommand( 'composer update' );
 		}
 
-		if(!$updateOutput)
-		{
-			throw new \Huxtable\Command\CommandInvokedException("No supported version control found at '{$this->path}'", 1);
-		}
+		echo PHP_EOL;
 
 		$this->updated = time();
 	}

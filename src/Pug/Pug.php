@@ -5,6 +5,9 @@
  */
 namespace Pug;
 
+use \Huxtable\Output;
+use \Huxtable\Command\CommandInvokedException;
+
 define('PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
 
 class Pug
@@ -88,7 +91,7 @@ class Pug
 			}
 		}
 
-		if($disabled == 0)
+		if( $disabled == 0 )
 		{
 			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
 		}
@@ -124,7 +127,7 @@ class Pug
 
 	/**
 	 * @param	string	$name
-	 * @return
+	 * @return	Project, boolean
 	 */
 	public function getProject($name)
 	{
@@ -136,7 +139,7 @@ class Pug
 			}
 		}
 
-		throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+		return false;
 	}
 
 	/**
@@ -145,9 +148,9 @@ class Pug
 	 */
 	public function getProjects ($sortByUpdated = false)
 	{
-		if ($sortByUpdated)
+		if( $sortByUpdated )
 		{
-			$this->sortProjects ($sortByUpdated);
+			$this->sortProjects( $sortByUpdated );
 		}
 
 		return $this->projects;
@@ -170,7 +173,7 @@ class Pug
 			}
 		}
 
-		if($removed == 0)
+		if( $removed == 0 )
 		{
 			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
 		}
@@ -230,6 +233,8 @@ class Pug
 	 */
 	public function update( $target )
 	{
+		$output = new Output;
+
 		// Update all tracked projects
 		if( $target == 'all' )
 		{
@@ -237,43 +242,78 @@ class Pug
 			{
 				if( $project->isEnabled() )
 				{
-					$project->update();
+					try
+					{
+						$project->update();
+					}
+					// A pug-level error we need to show the user (but which shouldn't interrupt other projects from updating — thanks, Sheree!)
+					catch( \Exception $e )
+					{
+						// We're going to make this pretty, since it's one in a list of multiple.
+						echo "Updating '{$project->getName()}'... halted: " . PHP_EOL . PHP_EOL;
+						echo Output::colorize( ' ! ', 'red' ) . 'pug: ' . $e->getMessage() .PHP_EOL . PHP_EOL;
+					}
 				}
 			});
 		}
 		else
 		{
-			try
-			{
-				// Update single project
-				$this->getProject($target)->update();
-			}
-			catch (\Huxtable\Command\CommandInvokedException $e)
-			{
-				// Attempt to treat target as a path as the last resort...
-				$file = new \SplFileInfo($target);
+			// Update single project
+			$project = $this->getProject( $target );
 
-				if($file->isDir())
+			$projectName = '';
+			$projectPath = '';
+
+			if( $project != false )
+			{
+				$projectName = $project->getName();
+				$projectPath = $project->getPath();
+			}
+			else
+			{
+				$file = new \SplFileInfo( $target );
+				
+				if( $file->isDir() )
 				{
+					$projectPath = $file->getRealpath();
+
 					// Let's check to see if a tracked project is already registered at this path
-					foreach ($this->projects as $project)
+					foreach( $this->projects as $project )
 					{
-						if ($project->getPath() == $file->getRealpath())
+						if( $project->getPath() == $projectPath )
 						{
-							$project->update();
-							$this->write();
-							return;
+							$projectName = $project->getName();
+							break;
 						}
 					}
 
-					$project = new Project($file->getRealpath(), $file->getRealPath());
-					$project->update();
+					if( $projectName == '' )
+					{
+						// No registered projects found, down to the bare file path itself
+						$project = new Project( $file->getRealpath(), $file->getRealPath() );
+						$projectName = $projectPath;
+					}
 				}
 				else
 				{
-					throw new \Huxtable\Command\CommandInvokedException("No project or path '{$target}' was found", 1);
+					throw new CommandInvokedException( "Unknown project or directory '{$target}'", 1 );
 				}
 			}
+
+			try
+			{
+				$project->update();
+			}
+			// There's something funny about this project's directory, so we need to pull over
+			catch( InvalidDirectoryException $e )
+			{
+				throw new CommandInvokedException( $e->getMessage(), 1 );
+			}
+			// Could not find any traces of SCM, which is... problematic
+			catch( MissingSourceControlException $e )
+			{
+				throw new CommandInvokedException( $e->getMessage(), 1 );
+			}	
 		}
 
 		$this->write();
