@@ -9,6 +9,10 @@ use \Huxtable\Output;
 
 class Project implements \JsonSerializable
 {
+	const SCM_GIT = 1;
+	const SCM_SVN = 2;
+	const SCM_ERR = 3;
+
 	/**
 	 * @var boolean
 	 */
@@ -27,6 +31,11 @@ class Project implements \JsonSerializable
 	/**
 	 * @var int
 	 */
+	protected $scm;
+
+	/**
+	 * @var int
+	 */
 	protected $updated;
 
 	/**
@@ -38,11 +47,46 @@ class Project implements \JsonSerializable
 	public function __construct($name, $path, $enabled=true, $updated=null)
 	{
 		$this->name = $name;
-		$this->path = new \SplFileInfo($path);
+		$this->path = new \SplFileInfo( $path );
 		$this->enabled = $enabled;
 		$this->updated = $updated;
 	}
 
+	/**
+	 * @return	void
+	 */
+	protected function detectSCM()
+	{
+		$this->scm = self::SCM_ERR;
+
+		$cwd = $this->path;
+
+		do
+		{
+			// Look for signs of SCM in working directory
+			$gitFile = new \SplFileInfo( $cwd->getRealPath() . '/.git' );
+
+			if( $gitFile->isDir() )
+			{
+				$this->scm = self::SCM_GIT;
+				break;
+			}
+			else
+			{
+				$svnFile = new \SplFileInfo( $cwd->getRealPath() . '/.svn' );
+
+				if( $svnFile->isDir() )
+				{
+					$this->scm = self::SCM_SVN;
+					break;
+				}
+			}
+
+			$cwd = $cwd->getPathInfo();
+		}
+		while( $cwd->getPathname() != $cwd->getPathInfo()->getPathname() );
+	}
+	
 	/**
 	 * @return	void
 	 */
@@ -65,10 +109,9 @@ class Project implements \JsonSerializable
 	 * @param	string	$command
 	 * @return	boolean
 	 */
-	public function executeCommand( $command )
+	protected function executeCommand( $command, $prefix=' >' )
 	{
 		$command = $command . ' 2>&1';	// force output to be where we need it
-
 		$result = exec( $command, $output, $exitCode );
 
 		if( count( $output ) == 0 )
@@ -84,7 +127,7 @@ class Project implements \JsonSerializable
 			{
 				if( strlen( $line ) > 0 )
 				{
-					echo Output::colorize( '   > ' . $line, $color ) . PHP_EOL;
+					echo Output::colorize( "  {$prefix} " . $line, $color ) . PHP_EOL;
 				}
 			}
 		}
@@ -136,10 +179,14 @@ class Project implements \JsonSerializable
 	}
 
 	/**
-	 * @return	boolean
+	 * Update a project's working copy and its dependencies
+	 *
+	 * @return	void
 	 */
 	public function update()
 	{
+		$this->detectSCM();
+
 		if( !$this->getFileInfo()->isDir() )
 		{
 			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' is not a valid directory" );
@@ -148,56 +195,51 @@ class Project implements \JsonSerializable
 		{
 			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' isn't readable" );
 		}
-
-		// --
-		// SCM
-		// --
-		$gitFile = new \SplFileInfo( $this->path->getRealPath() . '/.git' );
-		$svnFile = new \SplFileInfo( $this->path->getRealPath() . '/.svn' );
-
-		$scmFound = $gitFile->isDir() || $svnFile->isDir();
-		if( !$scmFound )
+		if( $this->scm == self::SCM_ERR )
 		{
-			// @todo	Improve detection by traversing up the path (in case the working directory is a descendent of a directory that is under SCM)
 			throw new MissingSourceControlException( "Source control not found in '{$this->path->getPathname()}'" );
 		}
 
-		echo "Updating '{$this->getName()}'... ";
-		echo PHP_EOL . PHP_EOL;
+		chdir( $this->path->getPathname() );
 
-		chdir($this->path->getPathname());
+		echo "Updating '{$this->getName()}'... " . PHP_EOL . PHP_EOL;
 
-		// --
-		// Git
-		// --
-		if( $gitFile->isDir() )
+		switch( $this->scm )
 		{
-			echo ' • Pulling... ';
-			$resultGit = $this->executeCommand( 'git pull' );
+			// --
+			// Git
+			// --
+			case self::SCM_GIT:
+			
+				echo ' • Pulling... ';
+				$resultGit = $this->executeCommand( 'git pull' );
+	
+				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
+				if( $modulesFile->isFile() )
+				{
+					echo ' • Updating submodules... ';
+					$this->executeCommand( 'git submodule update --init --recursive' );
+				}
 
-			$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
-			if( $modulesFile->isFile() )
-			{
-				echo ' • Updating submodules... ';
-				$this->executeCommand( 'git submodule update --init --recursive' );
-			}
-		}
+				break;
 
-		// --
-		// Subversion
-		// --
-		if( $svnFile->isDir() )
-		{
-			echo ' • Updating working copy... ';
-			$resultSvn = $this->executeCommand( 'svn up' );
+			// --
+			// Subversion
+			// --
+			case self::SCM_SVN:
+
+				echo ' • Updating working copy... ';
+				$resultSvn = $this->executeCommand( 'svn up' );
+
+				break;
 		}
 
 		// --
 		// CocoaPods
 		// --
-		$podFile = new \SplFileInfo($this->path->getRealPath() . '/Podfile');
+		$podFile = new \SplFileInfo( $this->path->getRealPath() . '/Podfile' );
 
-		if($podFile->isFile())
+		if( $podFile->isFile() )
 		{
 			echo ' • Updating CocoaPods... ';
 			$this->executeCommand( 'pod install' );
@@ -206,9 +248,9 @@ class Project implements \JsonSerializable
 		// --
 		// Composer
 		// --
-		$composerFile = new \SplFileInfo($this->path->getRealPath() . '/composer.json');
+		$composerFile = new \SplFileInfo( $this->path->getRealPath() . '/composer.json' );
 
-		if($composerFile->isFile())
+		if( $composerFile->isFile() )
 		{
 			echo ' • Updating Composer... ';
 			$this->executeCommand( 'composer update' );

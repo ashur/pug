@@ -8,7 +8,7 @@ namespace Pug;
 use \Huxtable\Output;
 use \Huxtable\Command\CommandInvokedException;
 
-define('PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug');
+define( 'PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug' );
 
 class Pug
 {
@@ -33,11 +33,11 @@ class Pug
 		{
 			if(!is_readable(PUG_CONFIG))
 			{
-				throw new \Huxtable\Command\CommandInvokedException("Can't read from ~/.pug", 1);
+				throw new CommandInvokedException("Can't read from ~/.pug", 1);
 			}
 			if(!is_writable(PUG_CONFIG))
 			{
-				throw new \Huxtable\Command\CommandInvokedException("Can't write to ~/.pug", 1);
+				throw new CommandInvokedException("Can't write to ~/.pug", 1);
 			}
 
 			$json = json_decode(file_get_contents(PUG_CONFIG), true);
@@ -65,7 +65,7 @@ class Pug
 		{
 			if($project->getName() == $current->getName())
 			{
-				throw new \Huxtable\Command\CommandInvokedException("The project '{$project->getName()}' already exists. See 'pug list'", 1);
+				throw new CommandInvokedException("The project '{$project->getName()}' already exists. See 'pug list'", 1);
 			}
 		}
 
@@ -93,7 +93,7 @@ class Pug
 
 		if( $disabled == 0 )
 		{
-			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CommandInvokedException("Project '{$name}' not found", 1);
 		}
 
 		$this->write();
@@ -119,7 +119,7 @@ class Pug
 
 		if($enabled == 0)
 		{
-			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CommandInvokedException("Project '{$name}' not found", 1);
 		}
 
 		$this->write();
@@ -127,11 +127,11 @@ class Pug
 
 	/**
 	 * @param	string	$name
-	 * @return	Project, boolean
+	 * @return	Project
 	 */
-	public function getProject($name)
+	public function getProject( $name )
 	{
-		foreach($this->projects as &$project)
+		foreach( $this->projects as &$project )
 		{
 			if($project->getName() == $name)
 			{
@@ -139,14 +139,35 @@ class Pug
 			}
 		}
 
-		return false;
+		// No registered project matches, let's try a file path
+		$file = new \SplFileInfo( $name );
+
+		if( $file->isDir() )
+		{
+			$projectPath = $file->getRealpath();
+
+			// Let's check to see if a tracked project is already registered at this path
+			foreach( $this->projects as &$project )
+			{
+				if( $project->getPath() == $projectPath )
+				{
+					return $project;
+				}
+			}
+
+			// Definitely no registered project matches, down to the bare file path itself
+			return new Project( $file->getRealpath(), $file->getRealPath() );
+		}
+
+		// No project or file path matches, time to bail
+		throw new CommandInvokedException( "Unknown project or directory '{$name}'", 1 );
 	}
 
 	/**
 	 * @param	boolean	$sortByUpdated
 	 * @return	array
 	 */
-	public function getProjects ($sortByUpdated = false)
+	public function getProjects( $sortByUpdated = false )
 	{
 		if( $sortByUpdated )
 		{
@@ -175,7 +196,7 @@ class Pug
 
 		if( $removed == 0 )
 		{
-			throw new \Huxtable\Command\CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CommandInvokedException("Project '{$name}' not found", 1);
 		}
 		
 		$this->write();
@@ -198,7 +219,7 @@ class Pug
 
 		if($updated == 0)
 		{
-			throw new \Huxtable\Command\CommandInvokedException("Project '{$project->getName()}' not found", 1);
+			throw new CommandInvokedException("Project '{$project->getName()}' not found", 1);
 		}
 
 		$this->write();
@@ -233,8 +254,6 @@ class Pug
 	 */
 	public function update( $target )
 	{
-		$output = new Output;
-
 		// Update all tracked projects
 		if( $target == 'all' )
 		{
@@ -256,49 +275,10 @@ class Pug
 				}
 			});
 		}
+		// Update single project
 		else
 		{
-			// Update single project
 			$project = $this->getProject( $target );
-
-			$projectName = '';
-			$projectPath = '';
-
-			if( $project != false )
-			{
-				$projectName = $project->getName();
-				$projectPath = $project->getPath();
-			}
-			else
-			{
-				$file = new \SplFileInfo( $target );
-				
-				if( $file->isDir() )
-				{
-					$projectPath = $file->getRealpath();
-
-					// Let's check to see if a tracked project is already registered at this path
-					foreach( $this->projects as $project )
-					{
-						if( $project->getPath() == $projectPath )
-						{
-							$projectName = $project->getName();
-							break;
-						}
-					}
-
-					if( $projectName == '' )
-					{
-						// No registered projects found, down to the bare file path itself
-						$project = new Project( $file->getRealpath(), $file->getRealPath() );
-						$projectName = $projectPath;
-					}
-				}
-				else
-				{
-					throw new CommandInvokedException( "Unknown project or directory '{$target}'", 1 );
-				}
-			}
 
 			try
 			{

@@ -6,6 +6,7 @@
 
 use \Huxtable\Format;
 use \Huxtable\Output;
+use \Huxtable\Command\CommandInvokedException;
 
 $commands = [];
 
@@ -19,11 +20,11 @@ $add = new Huxtable\Command('add', 'Start tracking a new project', function( $na
 	// Resolve $path
 	if(!file_exists($file->getRealPath()))
 	{
-		throw new \Huxtable\Command\CommandInvokedException("Couldn't track project, path '{$path}' not found", 1);
+		throw new CommandInvokedException( "Couldn't track project, path '{$path}' not found", 1 );
 	}
 	if(!$file->isDir())
 	{
-		throw new \Huxtable\Command\CommandInvokedException("Couldn't track project, path '{$path}' not a directory", 1);
+		throw new CommandInvokedException( "Couldn't track project, path '{$path}' not a directory", 1 );
 	}
 
 	$pug = new Pug\Pug();
@@ -192,7 +193,7 @@ function listProjects( array $projects, $name='' )
 
 		if( !$listed )
 		{
-			throw new \Huxtable\Command\CommandInvokedException( "Project '{$name}' not found", 1 );
+			throw new CommandInvokedException( "Project '{$name}' not found", 1 );
 		}
 	}
 
