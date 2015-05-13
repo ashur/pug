@@ -74,6 +74,7 @@ $rm = new Huxtable\Command('rm', 'Stop tracking a project', function( $name )
 	return listProjects ($pug->getProjects());
 });
 
+$rm->addAlias( 'remove' );
 $rm->addAlias( 'untrack' );
 
 $commands['rm'] = $rm;
@@ -103,7 +104,7 @@ $show->addAlias('list');
 $show->addAlias('ls');
 
 $showUsage = <<<USAGE
-show [options]
+show [options] [<name>]
 
 OPTIONS
      -t  sort by time updated, recently updated first
