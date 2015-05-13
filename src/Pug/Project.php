@@ -66,6 +66,8 @@ class Project implements \JsonSerializable
 			// Look for signs of SCM in working directory
 			$gitFile = new \SplFileInfo( $cwd->getRealPath() . '/.git' );
 
+			// Detecting a directory named .git instead of any matching file ensures that
+			//   we'll traverse up to and then update the project root instead of a submodule
 			if( $gitFile->isDir() )
 			{
 				$this->scm = self::SCM_GIT;
@@ -85,6 +87,14 @@ class Project implements \JsonSerializable
 			$cwd = $cwd->getPathInfo();
 		}
 		while( $cwd->getPathname() != $cwd->getPathInfo()->getPathname() );
+
+		// Update project name if necessary
+		if( $this->name == $this->path )
+		{
+			$this->name = $cwd;
+		}
+
+		$this->path = $cwd;
 	}
 	
 	/**
