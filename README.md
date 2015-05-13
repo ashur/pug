@@ -32,7 +32,7 @@ $ pug update
 $ pug update ./
 ```
 
-Admittedly, the convenience here is small for simple projects. As things get more complicated, however, Pug gives you a tiny leg up: a single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer.
+Admittedly, the convenience here is small for simple projects. As things get more complicated, however, Pug gives you a tiny leg up: a single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer or CocoaPods.
 
 ```bash
 $ pug up ~/Developer/access
@@ -170,4 +170,26 @@ Commands are:
    update     Fetch project updates
 
 See 'pug help <command>' to read about a specific command
+```
+
+## pug up pug
+
+> 💡 **Tip**: It's easy to stay up-to-date with Pug _using Pug._
+
+Add your local copy of Pug as a tracked project:
+
+```bash
+$ pug add pug [/path/to/pug]
+```
+
+Optionally, you can disable it so it's not jamming up your daily `update all` routine:
+
+```bash
+$ pug disable pug
+```
+
+Grab the latest version at any time:
+
+```bash
+$ pug up pug
 ```
