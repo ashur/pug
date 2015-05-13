@@ -4,6 +4,15 @@
 $config = require_once(__DIR__ . '/app/config.php');
 
 /*
+ * PHP version requirement
+ */
+if( version_compare( PHP_VERSION, $config['php-min'], '>=' ) == false )
+{
+	echo "pug: Requires PHP {$config['php-min']}+, found " . PHP_VERSION . PHP_EOL;
+	exit( 1 );
+}
+
+/*
  * Autoload
  */
 $autoload = require_once(__DIR__ . '/app/autoload.php');
