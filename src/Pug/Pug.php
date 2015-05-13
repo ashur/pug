@@ -149,7 +149,7 @@ class Pug
 			// Let's check to see if a tracked project is already registered at this path
 			foreach( $this->projects as &$project )
 			{
-				if( $project->getPath() == $projectPath )
+				if( strtolower( $project->getPath() ) == strtolower( $projectPath ) )
 				{
 					return $project;
 				}
