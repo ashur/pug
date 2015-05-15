@@ -61,9 +61,9 @@ class Project implements \JsonSerializable
 
 		$cwd = $this->path;
 
+		// Look for signs of SCM in working directory
 		do
 		{
-			// Look for signs of SCM in working directory
 			$gitFile = new \SplFileInfo( $cwd->getRealPath() . '/.git' );
 
 			// Detecting a directory named .git instead of any matching file ensures that
@@ -87,16 +87,8 @@ class Project implements \JsonSerializable
 			$cwd = $cwd->getPathInfo();
 		}
 		while( $cwd->getPathname() != $cwd->getPathInfo()->getPathname() );
-
-		// Update project name if necessary
-		if( $this->name == $this->path )
-		{
-			$this->name = $cwd;
-		}
-
-		$this->path = $cwd;
 	}
-	
+
 	/**
 	 * @return	void
 	 */
@@ -223,7 +215,7 @@ class Project implements \JsonSerializable
 			
 				echo ' • Pulling... ';
 				$resultGit = $this->executeCommand( 'git pull' );
-	
+
 				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
 				if( $modulesFile->isFile() )
 				{
