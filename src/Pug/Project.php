@@ -126,7 +126,7 @@ class Project implements \JsonSerializable
 
 		if( count( $output ) == 0 )
 		{
-			echo 'done.' . PHP_EOL;
+			echo 'done.' , PHP_EOL;
 		}
 		else
 		{
@@ -137,7 +137,7 @@ class Project implements \JsonSerializable
 			{
 				if( strlen( $line ) > 0 )
 				{
-					echo Output::colorize( "  {$prefix} " . $line, $color ) . PHP_EOL;
+					echo Output::colorize( "  {$prefix} " . $line, $color ) , PHP_EOL;
 				}
 			}
 		}
@@ -212,7 +212,7 @@ class Project implements \JsonSerializable
 
 		chdir( $this->path->getPathname() );
 
-		echo "Updating '{$this->getName()}'... " . PHP_EOL . PHP_EOL;
+		echo "Updating '{$this->getName()}'... " , PHP_EOL , PHP_EOL;
 
 		switch( $this->scm )
 		{

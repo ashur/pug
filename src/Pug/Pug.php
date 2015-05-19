@@ -269,8 +269,8 @@ class Pug
 					catch( \Exception $e )
 					{
 						// We're going to make this pretty, since it's one in a list of multiple.
-						echo "Updating '{$project->getName()}'... halted: " . PHP_EOL . PHP_EOL;
-						echo Output::colorize( ' ! ', 'red' ) . 'pug: ' . $e->getMessage() .PHP_EOL . PHP_EOL;
+						echo "Updating '{$project->getName()}'... halted: " , PHP_EOL , PHP_EOL;
+						echo Output::colorize( ' ! ', 'red' ) , 'pug: ' , $e->getMessage() ,PHP_EOL , PHP_EOL;
 					}
 				}
 			});
