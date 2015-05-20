@@ -119,30 +119,40 @@ class Project implements \JsonSerializable
 	 * @param	string	$command
 	 * @return	boolean
 	 */
-	protected function executeCommand( $command, $prefix=' >' )
+	protected function executeCommand( $command, $echo=true )
 	{
 		$command = $command . ' 2>&1';	// force output to be where we need it
-		$result = exec( $command, $output, $exitCode );
+		$result = exec( $command, $outputCommand, $exitCode );
+		$output = [];
 
-		if( count( $output ) == 0 )
+		if( count( $outputCommand ) == 0 )
 		{
-			echo 'done.' . PHP_EOL;
+			$output[] = 'done.';
 		}
 		else
 		{
-			echo PHP_EOL;
+			$output[] = '';
 			$color = $exitCode == 0 ? 'green' : 'red';
 
-			foreach( $output as $line )
+			foreach( $outputCommand as $line )
 			{
 				if( strlen( $line ) > 0 )
 				{
-					echo Output::colorize( "  {$prefix} " . $line, $color ) . PHP_EOL;
+					$output[] = Output::colorize( "   > " . $line, $color );
 				}
 			}
 		}
 
+		if( $echo )
+		{
+			foreach( $output as $line )
+			{
+				echo $line . PHP_EOL;
+			}
+		}
+
 		return [
+			'output' => $output,
 			'result' => $result,
 			'exitCode' => $exitCode
 		];
@@ -220,13 +230,31 @@ class Project implements \JsonSerializable
 			// Git
 			// --
 			case self::SCM_GIT:
-			
+
+				$resultStash = $this->executeCommand( 'git config pug.update.autostash', false );
+				$stashChanges = strtolower( $resultStash['result'] ) == 'true';
+
+				if( $stashChanges )
+				{
+					echo  ' • Stashing local changes... ';
+					$resultStashed = $this->executeCommand( 'git stash save "pug: automatically stashing changes"' );
+					echo PHP_EOL;
+				}
+
 				echo ' • Pulling... ';
 				$resultGit = $this->executeCommand( 'git pull' );
-	
+
+				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
+				{
+					echo PHP_EOL;
+					echo  ' • Popping stash... ';
+					$this->executeCommand( 'git stash pop' );
+				}
+
 				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
 				if( $modulesFile->isFile() )
 				{
+					echo PHP_EOL;
 					echo ' • Updating submodules... ';
 					$this->executeCommand( 'git submodule update --init --recursive' );
 				}
