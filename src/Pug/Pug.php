@@ -126,6 +126,51 @@ class Pug
 	}
 
 	/**
+	 * Execute a command, generate friendly output and return the result
+	 * 
+	 * @param	string	$command
+	 * @return	boolean
+	 */
+	static public function executeCommand( $command, $echo=true )
+	{
+		$command = $command . ' 2>&1';	// force output to be where we need it
+		$result = exec( $command, $outputCommand, $exitCode );
+		$output = [];
+
+		if( count( $outputCommand ) == 0 )
+		{
+			$output[] = 'done.';
+		}
+		else
+		{
+			$output[] = '';
+			$color = $exitCode == 0 ? 'green' : 'red';
+
+			foreach( $outputCommand as $line )
+			{
+				if( strlen( $line ) > 0 )
+				{
+					$output[] = Output::colorize( "   > " . $line, $color );
+				}
+			}
+		}
+
+		if( $echo )
+		{
+			foreach( $output as $line )
+			{
+				echo $line . PHP_EOL;
+			}
+		}
+
+		return [
+			'output' => $output,
+			'result' => $result,
+			'exitCode' => $exitCode
+		];
+	}
+
+	/**
 	 * Return array of all enabled projects
 	 * 
 	 * @return	array

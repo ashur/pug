@@ -39,6 +39,11 @@ class Project implements \JsonSerializable
 	protected $updated;
 
 	/**
+	 * @var boolean
+	 */
+	protected $usesCocoaPods=false;
+
+	/**
 	 * @param	string	$name		Name of project
 	 * @param	string	$path		Path to project directory
 	 * @param	boolean	$enabled	Enabled status
@@ -103,41 +108,6 @@ class Project implements \JsonSerializable
 	public function enable()
 	{
 		$this->enabled = true;
-	}
-
-	/**
-	 * Execute a command, generate friendly output and return the result
-	 * 
-	 * @param	string	$command
-	 * @return	boolean
-	 */
-	protected function executeCommand( $command, $prefix=' >' )
-	{
-		$command = $command . ' 2>&1';	// force output to be where we need it
-		$result = exec( $command, $output, $exitCode );
-
-		if( count( $output ) == 0 )
-		{
-			echo 'done.' . PHP_EOL;
-		}
-		else
-		{
-			echo PHP_EOL;
-			$color = $exitCode == 0 ? 'green' : 'red';
-
-			foreach( $output as $line )
-			{
-				if( strlen( $line ) > 0 )
-				{
-					echo Output::colorize( "  {$prefix} " . $line, $color ) . PHP_EOL;
-				}
-			}
-		}
-
-		return [
-			'result' => $result,
-			'exitCode' => $exitCode
-		];
 	}
 
 	/**
@@ -206,57 +176,38 @@ class Project implements \JsonSerializable
 
 		echo "Updating '{$this->getName()}'... " . PHP_EOL . PHP_EOL;
 
+		// Set up dependency managers
+		$cocoaPods = new DependencyManager\CocoaPods( $this->path );
+		$composer = new DependencyManager\Composer( $this->path );
+
+		// Update the main repository
 		switch( $this->scm )
 		{
-			// --
-			// Git
-			// --
 			case self::SCM_GIT:
-			
+
 				echo ' • Pulling... ';
-				$resultGit = $this->executeCommand( 'git pull' );
+				$resultGit = Pug::executeCommand( 'git pull' );
 
 				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
 				if( $modulesFile->isFile() )
 				{
 					echo ' • Updating submodules... ';
-					$this->executeCommand( 'git submodule update --init --recursive' );
+					Pug::executeCommand( 'git submodule update --init --recursive' );
 				}
 
 				break;
 
-			// --
-			// Subversion
-			// --
 			case self::SCM_SVN:
 
 				echo ' • Updating working copy... ';
-				$resultSvn = $this->executeCommand( 'svn up' );
+				$resultSvn = Pug::executeCommand( 'svn up' );
 
 				break;
 		}
 
-		// --
-		// CocoaPods
-		// --
-		$podFile = new \SplFileInfo( $this->path->getRealPath() . '/Podfile' );
-
-		if( $podFile->isFile() )
-		{
-			echo ' • Updating CocoaPods... ';
-			$this->executeCommand( 'pod install' );
-		}
-
-		// --
-		// Composer
-		// --
-		$composerFile = new \SplFileInfo( $this->path->getRealPath() . '/composer.json' );
-
-		if( $composerFile->isFile() )
-		{
-			echo ' • Updating Composer... ';
-			$this->executeCommand( 'composer update' );
-		}
+		// Update dependencies if necessary
+		$cocoaPods->update();
+		$composer->update();
 
 		echo PHP_EOL;
 
