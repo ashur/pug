@@ -42,10 +42,10 @@ class CocoaPods implements \Pug\DependencyManager
 	}
 
 	/**
-	 *
+	 * @param	boolean	$force	Force an update
 	 * @return	boolean
 	 */
-	public function update()
+	public function update( $force=false )
 	{
 		if( $this->usesCocoaPods )
 		{
@@ -63,7 +63,7 @@ class CocoaPods implements \Pug\DependencyManager
 			$podfile = new \SplFileInfo( $this->projectPath->getRealPath() . '/Podfile' );
 			$updateCocoaPods = $updateCocoaPods || $this->hashPodfileBefore != sha1_file( $podfile );
 
-			if( $updateCocoaPods )
+			if( $updateCocoaPods || $force )
 			{
 				Pug::executeCommand( 'pod install' );
 			}

@@ -153,9 +153,10 @@ class Project implements \JsonSerializable
 	/**
 	 * Update a project's working copy and its dependencies
 	 *
+	 * @param	boolean	$forceDependencyUpdate
 	 * @return	void
 	 */
-	public function update()
+	public function update( $forceDependencyUpdate )
 	{
 		$this->detectSCM();
 
@@ -206,8 +207,8 @@ class Project implements \JsonSerializable
 		}
 
 		// Update dependencies if necessary
-		$cocoaPods->update();
-		$composer->update();
+		$cocoaPods->update( $forceDependencyUpdate );
+		$composer->update( $forceDependencyUpdate );
 
 		echo PHP_EOL;
 

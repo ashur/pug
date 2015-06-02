@@ -8,7 +8,7 @@ namespace Pug;
 interface DependencyManager
 {
 	public function __construct( \SplFileInfo $dir );
-	public function update();
+	public function update( $force=false );
 }
 
 ?>

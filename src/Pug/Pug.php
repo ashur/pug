@@ -317,9 +317,10 @@ class Pug
 	/**
 	 * Attempt to update a single project based on its target (registered project name or filepath)
 	 * 
-	 * @param	string	$target		Target to update
+	 * @param	string	$target					Target to update
+	 * @param	boolean	$forceDependencyUpdate
 	 */
-	public function updateProject( $target )
+	public function updateProject( $target, $forceDependencyUpdate=false )
 	{
 		if( $target instanceof \Pug\Project )
 		{
@@ -330,7 +331,7 @@ class Pug
 			$project = $this->getProject( $target );
 		}
 
-		$project->update();
+		$project->update( $forceDependencyUpdate );
 		$this->write();
 	}
 

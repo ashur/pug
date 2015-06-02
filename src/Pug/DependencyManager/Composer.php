@@ -37,15 +37,15 @@ class Composer implements \Pug\DependencyManager
 		if( $composerFile->isFile() )
 		{
 			$this->usesComposer = true;
-			$this->hashComposerFilefileBefore = sha1_file( $composerFile );
+			$this->hashComposerFileBefore = sha1_file( $composerFile );
 		}
 	}
 
 	/**
-	 *
+	 * @param	boolean	$force	Force an update
 	 * @return	boolean
 	 */
-	public function update()
+	public function update( $force=false )
 	{
 		if( $this->usesComposer )
 		{
@@ -59,7 +59,7 @@ class Composer implements \Pug\DependencyManager
 			$composerFile = new \SplFileInfo( $this->projectPath->getRealPath() . '/composer.json' );
 			$updateComposer = $updateComposer || $this->hashComposerFileBefore != sha1_file( $composerFile );
 
-			if( $updateComposer )
+			if( $updateComposer || $force )
 			{
 				Pug::executeCommand( 'composer update' );
 			}

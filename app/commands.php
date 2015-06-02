@@ -126,6 +126,9 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function()
 	$pug = new Pug\Pug();
 	$sources = func_get_args();
 
+	$options = $this->getOptionsWithValues();
+	$forceDependencyUpdate = isset( $options['f'] ) || isset( $options['force'] );
+
 	if( count( $sources ) == 0 )
 	{
 		$sources[] = '.';
@@ -142,7 +145,7 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function()
 
 		try
 		{
-			$pug->updateProject( $target );
+			$pug->updateProject( $target, $forceDependencyUpdate );
 		}
 		catch( \Exception $e )
 		{
@@ -161,7 +164,20 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function()
 });
 
 $update->addAlias('up');
-$update->setUsage("update [all|<path>|<project>...]");
+$update->registerOption( 'f', 'Force dependency managers to update' );
+$update->registerOption( 'force', 'Force dependency managers to update' );
+
+$updateUsage = <<<USAGE
+update [options] [all|<path>|<project>...]
+
+OPTIONS
+     -f, --force
+         force dependency managers (ex., CocoaPods) to update
+
+
+USAGE;
+
+$update->setUsage( $updateUsage );
 
 $commands['update'] = $update;
 
