@@ -186,13 +186,13 @@ class Project implements \JsonSerializable
 		{
 			case self::SCM_GIT:
 
-				$resultStash = $this->executeCommand( 'git config pug.update.autostash', false );
+				$resultStash = Pug::executeCommand( 'git config pug.update.autostash', false );
 				$stashChanges = strtolower( $resultStash['result'] ) == 'true';
 
 				if( $stashChanges )
 				{
 					echo  ' • Stashing local changes... ';
-					$resultStashed = $this->executeCommand( 'git stash save "pug: automatically stashing changes"' );
+					$resultStashed = Pug::executeCommand( 'git stash save "pug: automatically stashing changes"' );
 					echo PHP_EOL;
 				}
 
@@ -203,7 +203,7 @@ class Project implements \JsonSerializable
 				{
 					echo PHP_EOL;
 					echo  ' • Popping stash... ';
-					$this->executeCommand( 'git stash pop' );
+					Pug::executeCommand( 'git stash pop' );
 				}
 
 				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
