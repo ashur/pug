@@ -126,6 +126,71 @@ class Pug
 	}
 
 	/**
+	 * Execute a command, generate friendly output and return the result
+	 * 
+	 * @param	string	$command
+	 * @return	boolean
+	 */
+	static public function executeCommand( $command, $echo=true )
+	{
+		$command = $command . ' 2>&1';	// force output to be where we need it
+		$result = exec( $command, $outputCommand, $exitCode );
+		$output = [];
+
+		if( count( $outputCommand ) == 0 )
+		{
+			$output[] = 'done.';
+		}
+		else
+		{
+			$output[] = '';
+			$color = $exitCode == 0 ? 'green' : 'red';
+
+			foreach( $outputCommand as $line )
+			{
+				if( strlen( $line ) > 0 )
+				{
+					$output[] = Output::colorize( "   > " . $line, $color );
+				}
+			}
+		}
+
+		if( $echo )
+		{
+			foreach( $output as $line )
+			{
+				echo $line . PHP_EOL;
+			}
+		}
+
+		return [
+			'output' => $output,
+			'result' => $result,
+			'exitCode' => $exitCode
+		];
+	}
+
+	/**
+	 * Return array of all enabled projects
+	 * 
+	 * @return	array
+	 */
+	public function getEnabledProjects()
+	{
+		$enabled = [];
+
+		foreach( $this->projects as $project )
+		{
+			if( $project->isEnabled() )
+			{
+				$enabled[] = $project;
+			}
+		}
+
+		return $enabled;
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	Project
 	 */
@@ -250,52 +315,23 @@ class Pug
 	}
 
 	/**
-	 * @param	string	$target		Target to update
+	 * Attempt to update a single project based on its target (registered project name or filepath)
+	 * 
+	 * @param	string	$target					Target to update
+	 * @param	boolean	$forceDependencyUpdate
 	 */
-	public function update( $target )
+	public function updateProject( $target, $forceDependencyUpdate=false )
 	{
-		// Update all tracked projects
-		if( $target == 'all' )
+		if( $target instanceof \Pug\Project )
 		{
-			array_walk($this->projects, function(&$project, $key)
-			{
-				if( $project->isEnabled() )
-				{
-					try
-					{
-						$project->update();
-					}
-					// A pug-level error we need to show the user (but which shouldn't interrupt other projects from updating — thanks, Sheree!)
-					catch( \Exception $e )
-					{
-						// We're going to make this pretty, since it's one in a list of multiple.
-						echo "Updating '{$project->getName()}'... halted: " . PHP_EOL . PHP_EOL;
-						echo Output::colorize( ' ! ', 'red' ) . 'pug: ' . $e->getMessage() .PHP_EOL . PHP_EOL;
-					}
-				}
-			});
+			$project = $target;
 		}
-		// Update single project
 		else
 		{
 			$project = $this->getProject( $target );
-
-			try
-			{
-				$project->update();
-			}
-			// There's something funny about this project's directory, so we need to pull over
-			catch( InvalidDirectoryException $e )
-			{
-				throw new CommandInvokedException( $e->getMessage(), 1 );
-			}
-			// Could not find any traces of SCM, which is... problematic
-			catch( MissingSourceControlException $e )
-			{
-				throw new CommandInvokedException( $e->getMessage(), 1 );
-			}	
 		}
 
+		$project->update( $forceDependencyUpdate );
 		$this->write();
 	}
 

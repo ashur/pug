@@ -1,4 +1,4 @@
-![pug](http://pug.sh.s3.amazonaws.com/pug.png)
+![](http://pug.sh.s3.amazonaws.com/pug.png)
 
 Quickly update local projects and their dependencies with a single command. Pug currently supports Subversion and Git, and [CocoaPods](https://cocoapods.org/) and [Composer](https://getcomposer.org).
 
@@ -45,7 +45,14 @@ Updating '/Users/Ashur/Developer/access'...
 
 ```
 
-> 💡 **Tip**: Save yourself a few keystrokes with `pug up`
+### Dependencies
+
+If a project is using CocoaPods or Composer to manage its dependencies, Pug will automatically determine whether to update those as well. If you want to force a dependency update, you can:
+
+```bash
+$ pug up [-f | --force]
+```
+
 
 ## Tracking
 
@@ -78,11 +85,7 @@ Updating 'plank'...
 
  • Pulling... 
    > Already up-to-date.
- • Updating Composer... 
-   > Loading composer repositories with package information
-   > Updating dependencies (including require-dev)
-   > Nothing to install or update
-   > Generating autoload files
+ • Updating Composer... done.
 
 Updating 'tapas'... 
 
@@ -119,6 +122,34 @@ Updating 'tapas'...
 ```
 
 
+## 💡 Tips
+
+### pug up(date)
+
+Save yourself a few keystrokes with `pug up`
+
+
+### pug up pug
+
+It's easy to keep your copy of Pug up-to-date using Pug! Add your local copy of Pug as a tracked project:
+
+```bash
+$ pug add pug [/path/to/pug]
+```
+
+Optionally, you can disable it so it's not jamming up your daily `update all` routine:
+
+```bash
+$ pug disable pug
+```
+
+Grab the latest version at any time:
+
+```bash
+$ pug up pug
+```
+
+
 ## Under the hood
 
 Okay so but what is Pug doing when it updates? Great question. In order of operations:
@@ -138,19 +169,31 @@ If it is using Subversion, it runs:
 svn up
 ```
 
-### Dependencies
+### Dependency Managers
 
-If Pug detects CocoaPods, it runs:
+If Pug detects the use of CocoaPods, it will try to determine if an update is necessary:
+
+* Is the `Pods` folder missing?
+* Is the `Podfile.lock` file missing?
+* Was the `Podfile` updated as part of the main repository update?
+
+If any of above are true, Pug will then run:
 
 ```bash
 pod install
 ```
 
-If Pug detects Composer, it runs:
+If Pug detects the use of Composer, it will try to determine if an update is necessary:
+
+* Is the `composer.lock` file missing?
+* Was `composer.json` updated as part of the main repository update?
+
+If either of above are true, Pug will then run:
 
 ```bash
 composer update
 ```
+
 
 ## pug help
 
@@ -170,26 +213,4 @@ Commands are:
    update     Fetch project updates
 
 See 'pug help <command>' to read about a specific command
-```
-
-## pug up pug
-
-> 💡 **Tip**: It's easy to stay up-to-date with Pug _using Pug._
-
-Add your local copy of Pug as a tracked project:
-
-```bash
-$ pug add pug [/path/to/pug]
-```
-
-Optionally, you can disable it so it's not jamming up your daily `update all` routine:
-
-```bash
-$ pug disable pug
-```
-
-Grab the latest version at any time:
-
-```bash
-$ pug up pug
 ```

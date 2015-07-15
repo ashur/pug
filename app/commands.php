@@ -126,19 +126,58 @@ $update = new Huxtable\Command('update', 'Fetch project updates', function()
 	$pug = new Pug\Pug();
 	$sources = func_get_args();
 
+	$options = $this->getOptionsWithValues();
+	$forceDependencyUpdate = isset( $options['f'] ) || isset( $options['force'] );
+
 	if( count( $sources ) == 0 )
 	{
 		$sources[] = '.';
 	}
 
+	if( $sources[0] == 'all' )
+	{
+		$sources = $pug->getEnabledProjects();
+	}
+
 	for( $i=0; $i < count ($sources); $i++ )
 	{
-		$pug->update( $sources[$i] );
+		$target = $sources[$i];
+
+		try
+		{
+			$pug->updateProject( $target, $forceDependencyUpdate );
+		}
+		catch( \Exception $e )
+		{
+			// Standard single-line failure with exit code
+			if( count( $sources ) == 1 && $target != 'all' )
+			{
+				throw new CommandInvokedException( $e->getMessage(), 1 );
+			}
+
+			$name = $target instanceof \Pug\Project ? $target->getName() : $target;
+
+			echo "Updating '{$name}'... halted: " . PHP_EOL . PHP_EOL;
+			echo Output::colorize( ' ! ', 'red' ) . $e->getMessage() .PHP_EOL . PHP_EOL;
+		}
 	}
 });
 
 $update->addAlias('up');
-$update->setUsage("update [all|<path>|<project>...]");
+$update->registerOption( 'f', 'Force dependency managers to update' );
+$update->registerOption( 'force', 'Force dependency managers to update' );
+
+$updateUsage = <<<USAGE
+update [options] [all|<path>|<project>...]
+
+OPTIONS
+     -f, --force
+         force dependency managers (ex., CocoaPods) to update
+
+
+USAGE;
+
+$update->setUsage( $updateUsage );
 
 $commands['update'] = $update;
 

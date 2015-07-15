@@ -39,6 +39,11 @@ class Project implements \JsonSerializable
 	protected $updated;
 
 	/**
+	 * @var boolean
+	 */
+	protected $usesCocoaPods=false;
+
+	/**
 	 * @param	string	$name		Name of project
 	 * @param	string	$path		Path to project directory
 	 * @param	boolean	$enabled	Enabled status
@@ -61,9 +66,9 @@ class Project implements \JsonSerializable
 
 		$cwd = $this->path;
 
+		// Look for signs of SCM in working directory
 		do
 		{
-			// Look for signs of SCM in working directory
 			$gitFile = new \SplFileInfo( $cwd->getRealPath() . '/.git' );
 
 			// Detecting a directory named .git instead of any matching file ensures that
@@ -87,16 +92,8 @@ class Project implements \JsonSerializable
 			$cwd = $cwd->getPathInfo();
 		}
 		while( $cwd->getPathname() != $cwd->getPathInfo()->getPathname() );
-
-		// Update project name if necessary
-		if( $this->name == $this->path )
-		{
-			$this->name = $cwd;
-		}
-
-		$this->path = $cwd;
 	}
-	
+
 	/**
 	 * @return	void
 	 */
@@ -111,51 +108,6 @@ class Project implements \JsonSerializable
 	public function enable()
 	{
 		$this->enabled = true;
-	}
-
-	/**
-	 * Execute a command, generate friendly output and return the result
-	 * 
-	 * @param	string	$command
-	 * @return	boolean
-	 */
-	protected function executeCommand( $command, $echo=true )
-	{
-		$command = $command . ' 2>&1';	// force output to be where we need it
-		$result = exec( $command, $outputCommand, $exitCode );
-		$output = [];
-
-		if( count( $outputCommand ) == 0 )
-		{
-			$output[] = 'done.';
-		}
-		else
-		{
-			$output[] = '';
-			$color = $exitCode == 0 ? 'green' : 'red';
-
-			foreach( $outputCommand as $line )
-			{
-				if( strlen( $line ) > 0 )
-				{
-					$output[] = Output::colorize( "   > " . $line, $color );
-				}
-			}
-		}
-
-		if( $echo )
-		{
-			foreach( $output as $line )
-			{
-				echo $line . PHP_EOL;
-			}
-		}
-
-		return [
-			'output' => $output,
-			'result' => $result,
-			'exitCode' => $exitCode
-		];
 	}
 
 	/**
@@ -201,9 +153,10 @@ class Project implements \JsonSerializable
 	/**
 	 * Update a project's working copy and its dependencies
 	 *
+	 * @param	boolean	$forceDependencyUpdate
 	 * @return	void
 	 */
-	public function update()
+	public function update( $forceDependencyUpdate )
 	{
 		$this->detectSCM();
 
@@ -224,11 +177,13 @@ class Project implements \JsonSerializable
 
 		echo "Updating '{$this->getName()}'... " . PHP_EOL . PHP_EOL;
 
+		// Set up dependency managers
+		$cocoaPods = new DependencyManager\CocoaPods( $this->path );
+		$composer = new DependencyManager\Composer( $this->path );
+
+		// Update the main repository
 		switch( $this->scm )
 		{
-			// --
-			// Git
-			// --
 			case self::SCM_GIT:
 
 				$resultStash = $this->executeCommand( 'git config pug.update.autostash', false );
@@ -242,7 +197,7 @@ class Project implements \JsonSerializable
 				}
 
 				echo ' • Pulling... ';
-				$resultGit = $this->executeCommand( 'git pull' );
+				$resultGit = Pug::executeCommand( 'git pull' );
 
 				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
 				{
@@ -256,43 +211,22 @@ class Project implements \JsonSerializable
 				{
 					echo PHP_EOL;
 					echo ' • Updating submodules... ';
-					$this->executeCommand( 'git submodule update --init --recursive' );
+					Pug::executeCommand( 'git submodule update --init --recursive' );
 				}
 
 				break;
 
-			// --
-			// Subversion
-			// --
 			case self::SCM_SVN:
 
 				echo ' • Updating working copy... ';
-				$resultSvn = $this->executeCommand( 'svn up' );
+				$resultSvn = Pug::executeCommand( 'svn up' );
 
 				break;
 		}
 
-		// --
-		// CocoaPods
-		// --
-		$podFile = new \SplFileInfo( $this->path->getRealPath() . '/Podfile' );
-
-		if( $podFile->isFile() )
-		{
-			echo ' • Updating CocoaPods... ';
-			$this->executeCommand( 'pod install' );
-		}
-
-		// --
-		// Composer
-		// --
-		$composerFile = new \SplFileInfo( $this->path->getRealPath() . '/composer.json' );
-
-		if( $composerFile->isFile() )
-		{
-			echo ' • Updating Composer... ';
-			$this->executeCommand( 'composer update' );
-		}
+		// Update dependencies if necessary
+		$cocoaPods->update( $forceDependencyUpdate );
+		$composer->update( $forceDependencyUpdate );
 
 		echo PHP_EOL;
 
