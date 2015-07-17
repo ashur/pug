@@ -196,8 +196,11 @@ class Project implements \JsonSerializable
 					echo PHP_EOL;
 				}
 
+				// Build and execute 'pull' command
+				$commandPull = 'git pull';
+
 				echo ' • Pulling... ';
-				$resultGit = Pug::executeCommand( 'git pull' );
+				$resultGit = Pug::executeCommand( $commandPull );
 
 				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
 				{
@@ -206,12 +209,25 @@ class Project implements \JsonSerializable
 					Pug::executeCommand( 'git stash pop' );
 				}
 
+				// Submodules
 				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
 				if( $modulesFile->isFile() )
 				{
-					echo PHP_EOL;
-					echo ' • Updating submodules... ';
-					Pug::executeCommand( 'git submodule update --init --recursive' );
+					$resultSubmodules = Pug::executeCommand( 'git config pug.update.submodules', false );
+					$updateSubmodules = strtolower( $resultSubmodules['result'] ) != 'false';
+	
+					if( $updateSubmodules )
+					{
+						echo PHP_EOL;
+						echo ' • Updating submodules... ';
+						Pug::executeCommand( 'git submodule update --init --recursive' );
+					}
+					else
+					{
+						echo PHP_EOL;
+						echo ' • Submodule updates were skipped due to configuration';
+						echo PHP_EOL;
+					}
 				}
 
 				break;
