@@ -1,62 +1,56 @@
-![](http://pug.sh.s3.amazonaws.com/pug.png)
+# ![Quickly update Git and Subversion projects and their dependencies with a single command.](http://pug.sh.s3.amazonaws.com/pug.png)
 
-Quickly update local projects and their dependencies with a single command. Pug currently supports Subversion and Git, and [CocoaPods](https://cocoapods.org/) and [Composer](https://getcomposer.org).
+One command is all you need to update local repositories and their submodules. If a project is using [CocoaPods](https://cocoapods.org) or [Composer](https://getcomposer.org) to manage its dependencies, Pug will automatically update those, too.
 
 
-## Setup
-
-> See [Installation](INSTALL.md) for details on getting started with Pug
-
-### Requirements
+## Requirements
 
 Pug requires PHP 5.4 or greater
 
-### Configuration
 
-If a timezone isn't defined in php.ini, Pug defaults to `UTC`. To override either, open [config.php](https://github.com/ashur/pug/blob/master/config.php.dist) and specify a [supported timezone](http://php.net/manual/en/timezones.php).
-
-
-## Update
-
-Pug can [fetch updates](#underthehood) for projects that live at arbitrary paths. Some thrilling examples:
+## Installation
 
 ```bash
-$ pug update ../plank
-$ pug update ~/Developer/plank
+$ git clone --recursive https://github.com/ashur/pug.git
 ```
 
-Update the project at your current working directory:
+### Extra Credit
+
+You'll probably also want to add the resulting folder to your environment `$PATH`. For example:
 
 ```bash
-$ pug update
-$ pug update ./
+export PATH=$PATH:/path/to/pug/folder
 ```
 
-Admittedly, the convenience here is small for simple projects. As things get more complicated, however, Pug gives you a tiny leg up: a single command is all you need to update Git repositories _and_ their submodules _and_ dependencies managed by tools like Composer or CocoaPods.
+Alternatively, you can symlink Pug to a directory already on your `$PATH`:
 
 ```bash
-$ pug up ~/Developer/access
+$ ln -s /path/to/pug/pug /usr/local/bin/pug
+```
+
+This lets you run `pug` commands from anywhere on the command line, not just from inside the Pug repository folder.
+
+
+## Basic Usage
+
+### Update
+
+```bash
+$ pug update ~/Developer/access
 Updating '/Users/Ashur/Developer/access'... 
 
  • Pulling... 
    > Already up-to-date.
+
  • Updating submodules... 
    > Submodule path 'vendor/huxtable': checked out '0cccd17fe78fdd9a778f5025b244eafc68553764'
 
 ```
 
-### Dependencies
 
-If a project is using CocoaPods or Composer to manage its dependencies, Pug will automatically determine whether to update those as well. If you want to force a dependency update, you can:
+### Tracking
 
-```bash
-$ pug up [-f | --force]
-```
-
-
-## Tracking
-
-If you juggle multiple projects that need to stay up-to-date, Pug really starts to shine with tracking:
+If you juggle multiple projects that need to stay up-to-date, Pug really shines with tracking:
 
 ```bash
 $ pug add tapas ~/Developer/tapas
@@ -68,13 +62,13 @@ $ pug add tapas ~/Developer/tapas
 Updating a tracked project is easy:
 
 ```bash
-$ pug up tapas
+$ pug update tapas
 ```
 
 Updating all your projects at once is even easier:
 
 ```bash
-$ pug up all
+$ pug update all
 Updating 'dotfiles'... 
 
  • Pulling... 
@@ -104,7 +98,7 @@ $ pug disable plank
 * tapas
 ```
 
-Pug will hold onto the project definition but skip it when you `update all`:
+Pug will hold onto the project definition, but skip it when you `update all`:
 
 ```bash
 $ pug update all
@@ -122,16 +116,89 @@ Updating 'tapas'...
 ```
 
 
-## 💡 Tips
+## Configuration
 
-### pug up(date)
+Pug supports a few configuration options via Git's `config` command. They can be set either globally (using the `--global` flag) or on a per-project basis. For example:
 
-Save yourself a few keystrokes with `pug up`
+
+```bash
+$ git config [--global] pug.update.stash true
+```
+
+### Options
+
+_pug.update.**stash**_
+
+> _boolean_ — When **true**, automatically `stash` any changes in the active project before `pull`-ing, then pop the stack afterward
+> 
+> Default value is **false**
+
+_pug.update.**submodules**_
+
+> _boolean_ — When **false**, override default submodule update during `pug update`
+> 
+> Default value is **true**
+
+
+## Under the hood
+
+It's important to know what Pug is doing when it updates. In order of operations:
+
+### SCM
+
+If a project is using Git:
+
+```bash
+git pull
+git submodule update --init --recursive
+```
+
+If it's using Subversion, it runs:
+
+```bash
+svn up
+```
+
+### Dependency Managers
+
+If Pug detects CocoaPods, it will try to determine if an update is necessary:
+
+* Is the `Pods` folder missing?
+* Is the `Podfile.lock` file missing?
+* Was the `Podfile` updated as part of the main repository update?
+
+If any of above are true, Pug will then run:
+
+```bash
+pod install
+```
+
+If Pug detects Composer, it will try to determine if an update is necessary:
+
+* Is the `composer.lock` file missing?
+* Was `composer.json` updated as part of the main repository update?
+
+If either of above are true, Pug will then run:
+
+```bash
+composer update
+```
+
+
+## Tips
+
+### Save the 'date'
+
+Drop the `date` and save yourself a few (thousand) keystrokes:
+
+```bash
+$ pug up
+```
 
 
 ### pug up pug
 
-It's easy to keep your copy of Pug up-to-date using Pug! Add your local copy of Pug as a tracked project:
+It's easy to keep your copy of Pug up-to-date... using Pug! Add your local copy as a tracked project:
 
 ```bash
 $ pug add pug [/path/to/pug]
@@ -147,51 +214,6 @@ Grab the latest version at any time:
 
 ```bash
 $ pug up pug
-```
-
-
-## Under the hood
-
-Okay so but what is Pug doing when it updates? Great question. In order of operations:
-
-### SCM
-
-If a project is using Git:
-
-```bash
-git pull
-git submodule update --init --recursive
-```
-
-If it is using Subversion, it runs:
-
-```bash
-svn up
-```
-
-### Dependency Managers
-
-If Pug detects the use of CocoaPods, it will try to determine if an update is necessary:
-
-* Is the `Pods` folder missing?
-* Is the `Podfile.lock` file missing?
-* Was the `Podfile` updated as part of the main repository update?
-
-If any of above are true, Pug will then run:
-
-```bash
-pod install
-```
-
-If Pug detects the use of Composer, it will try to determine if an update is necessary:
-
-* Is the `composer.lock` file missing?
-* Was `composer.json` updated as part of the main repository update?
-
-If either of above are true, Pug will then run:
-
-```bash
-composer update
 ```
 
 
