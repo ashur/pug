@@ -1,4 +1,4 @@
-# ![Quickly update Git and Subversion projects and their dependencies with a single command.](http://pug.sh.s3.amazonaws.com/pug.png)
+# ![Quickly update Git and Subversion projects and their dependencies with a single command.](http://pug.sh.s3.amazonaws.com/pug2.png)
 
 One command is all you need to update local repositories and their submodules. If a project is using [CocoaPods](https://cocoapods.org) or [Composer](https://getcomposer.org) to manage its dependencies, Pug will automatically update those, too.
 
@@ -135,7 +135,7 @@ _pug.update.**stash**_
 
 _pug.update.**submodules**_
 
-> _boolean_ — When **false**, override default submodule update during `pug update`
+> _boolean_ — Whether to update submodules during `pug update`
 > 
 > Default value is **true**
 
@@ -161,27 +161,22 @@ svn up
 
 ### Dependency Managers
 
-If Pug detects CocoaPods, it will try to determine if an update is necessary:
-
-* Is the `Pods` folder missing?
-* Is the `Podfile.lock` file missing?
-* Was the `Podfile` updated as part of the main repository update?
-
-If any of above are true, Pug will then run:
+If Pug detects CocoaPods, it will try to determine if an update is necessary. If so:
 
 ```bash
 pod install
 ```
 
-If Pug detects Composer, it will try to determine if an update is necessary:
-
-* Is the `composer.lock` file missing?
-* Was `composer.json` updated as part of the main repository update?
-
-If either of above are true, Pug will then run:
+If Pug detects Composer and determines an update is necessary:
 
 ```bash
 composer update
+```
+
+To force dependency updates:
+
+```bash
+$ pug update --force
 ```
 
 
@@ -189,12 +184,11 @@ composer update
 
 ### Save the 'date'
 
-Drop the `date` and save yourself a few (thousand) keystrokes:
+Save yourself a few keystrokes every `update`:
 
 ```bash
 $ pug up
 ```
-
 
 ### pug up pug
 
@@ -204,16 +198,16 @@ It's easy to keep your copy of Pug up-to-date... using Pug! Add your local copy 
 $ pug add pug [/path/to/pug]
 ```
 
-Optionally, you can disable it so it's not jamming up your daily `update all` routine:
-
-```bash
-$ pug disable pug
-```
-
 Grab the latest version at any time:
 
 ```bash
 $ pug up pug
+```
+
+Optionally, you can disable the tracked project so it's not jamming up your daily `update all` routine:
+
+```bash
+$ pug disable pug
 ```
 
 
