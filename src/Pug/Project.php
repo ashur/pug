@@ -186,7 +186,7 @@ class Project implements \JsonSerializable
 		{
 			case self::SCM_GIT:
 
-				$resultStash = Pug::executeCommand( 'git config pug.update.autostash', false );
+				$resultStash = Pug::executeCommand( 'git config pug.update.stash', false );
 				$stashChanges = strtolower( $resultStash['result'] ) == 'true';
 
 				if( $stashChanges )
