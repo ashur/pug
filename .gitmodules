@@ -1,0 +1,3 @@
+[submodule "vendor/huxtable/core"]
+	path = vendor/huxtable/core
+	url = https://github.com/huxtable/core.git
