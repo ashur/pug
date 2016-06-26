@@ -7,7 +7,7 @@ namespace Pug\DependencyManager;
 
 use Pug\Pug;
 
-class CocoaPods implements \Pug\DependencyManager
+class CocoaPods implements IDependencyManager
 {
 	/**
 	 * @var string
@@ -49,6 +49,7 @@ class CocoaPods implements \Pug\DependencyManager
 	{
 		if( $this->usesCocoaPods )
 		{
+			echo PHP_EOL;
 			echo ' • Updating CocoaPods... ';
 
 			// a Pods folder exists
@@ -78,5 +79,3 @@ class CocoaPods implements \Pug\DependencyManager
 		return false;
 	}
 }
-
-?>

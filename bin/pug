@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+use Huxtable\Core\File;
+
+$appName = basename( __FILE__ );
+
+$dirBase     = dirname( __DIR__ );
+$dirLib      = $dirBase . '/lib';
+$dirApp      = $dirLib  . '/' . $appName;
+$dirCommands = $dirLib  . '/commands';
+$dirVendor   = $dirBase . '/vendor';
+
+/*
+ * App configuration
+ */
+$config = require_once( $dirLib . '/config.php' );
+
+/*
+ * Initialize autoloading
+ */
+include_once( $dirVendor . '/huxtable/cli/autoload.php' );
+include_once( $dirVendor . '/huxtable/core/autoload.php' );
+
+include_once( $dirApp . '/Autoloader.php' );
+Pug\Autoloader::register();
+
+/*
+ * App configuration
+ */
+$app = new Huxtable\CLI\Application( $appName, $config['version'], $config['php-min'] );
+
+/*
+ * Register commands
+ */
+$fileFilter = new File\Filter();
+$fileFilter
+->setDefaultMethod( $fileFilter::METHOD_INCLUDE )
+->includeFileExtension( 'php' );
+
+$commandsFolder = new File\Directory( $dirCommands );
+if( $commandsFolder->exists() )
+{
+	$commandFiles = $commandsFolder->children( $fileFilter );
+
+	foreach( $commandFiles as $commandFile )
+	{
+		$command = include_once( $commandFile );
+		if( $command instanceof Huxtable\CLI\Command )
+		{
+			$app->registerCommand( $command );
+		}
+	}
+}
+
+/*
+ * Timezone
+ */
+$timezone = 'UTC';
+// Override with value from php.ini if set
+if( strlen( $iniTimezone = ini_get( 'date.timezone' ) ) > 0 )
+{
+	$timezone = $iniTimezone;
+}
+// Override with value from config.php if set
+if( isset( $userConfig['timezone'] ) )
+{
+	$timezone = $userConfig['timezone'];
+}
+date_default_timezone_set( $timezone );
+
+// Attempt to run the requested command
+$app->run();
+
+// Stop application and exit
+$app->stop();

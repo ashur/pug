@@ -5,8 +5,7 @@
  */
 namespace Pug;
 
-use \Huxtable\Output;
-use \Huxtable\Command\CommandInvokedException;
+use Huxtable\CLI;
 
 define( 'PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug' );
 
@@ -33,11 +32,11 @@ class Pug
 		{
 			if(!is_readable(PUG_CONFIG))
 			{
-				throw new CommandInvokedException("Can't read from ~/.pug", 1);
+				throw new CLI\Command\CommandInvokedException("Can't read from ~/.pug", 1);
 			}
 			if(!is_writable(PUG_CONFIG))
 			{
-				throw new CommandInvokedException("Can't write to ~/.pug", 1);
+				throw new CLI\Command\CommandInvokedException("Can't write to ~/.pug", 1);
 			}
 
 			$json = json_decode(file_get_contents(PUG_CONFIG), true);
@@ -65,8 +64,13 @@ class Pug
 		{
 			if($project->getName() == $current->getName())
 			{
-				throw new CommandInvokedException("The project '{$project->getName()}' already exists. See 'pug list'", 1);
+				throw new \Exception("Project '{$project->getName()}' already exists. See 'pug show'.", 1);
 			}
+		}
+
+		if( $project->getSCM() == Project::SCM_ERR )
+		{
+			throw new \Exception( "Source control not found in '{$project->getPath()}'." );
 		}
 
 		$this->projects[] = $project;
@@ -93,12 +97,12 @@ class Pug
 
 		if( $disabled == 0 )
 		{
-			throw new CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CLI\Command\CommandInvokedException("Project '{$name}' not found.", 1);
 		}
 
 		$this->write();
 	}
-	
+
 	/**
 	 * @param	string	$name
 	 * @return	void
@@ -119,7 +123,7 @@ class Pug
 
 		if($enabled == 0)
 		{
-			throw new CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CLI\Command\CommandInvokedException("Project '{$name}' not found.", 1);
 		}
 
 		$this->write();
@@ -127,7 +131,7 @@ class Pug
 
 	/**
 	 * Execute a command, generate friendly output and return the result
-	 * 
+	 *
 	 * @param	string	$command
 	 * @return	boolean
 	 */
@@ -148,9 +152,12 @@ class Pug
 
 			foreach( $outputCommand as $line )
 			{
+				$formattedLine = new CLI\Format\String( "   > {$line}" );
+				$formattedLine->foregroundColor( $color );
+
 				if( strlen( $line ) > 0 )
 				{
-					$output[] = Output::colorize( "   > " . $line, $color );
+					$output[] = $formattedLine;
 				}
 			}
 		}
@@ -172,7 +179,7 @@ class Pug
 
 	/**
 	 * Return array of all enabled projects
-	 * 
+	 *
 	 * @return	array
 	 */
 	public function getEnabledProjects()
@@ -225,7 +232,7 @@ class Pug
 		}
 
 		// No project or file path matches, time to bail
-		throw new CommandInvokedException( "Unknown project or directory '{$name}'", 1 );
+		throw new CLI\Command\CommandInvokedException( "Unknown project or directory '{$name}'.", 1 );
 	}
 
 	/**
@@ -261,9 +268,9 @@ class Pug
 
 		if( $removed == 0 )
 		{
-			throw new CommandInvokedException("Project '{$name}' not found", 1);
+			throw new CLI\Command\CommandInvokedException("Project '{$name}' not found.", 1);
 		}
-		
+
 		$this->write();
 	}
 
@@ -284,7 +291,7 @@ class Pug
 
 		if($updated == 0)
 		{
-			throw new CommandInvokedException("Project '{$project->getName()}' not found", 1);
+			throw new CLI\Command\CommandInvokedException("Project '{$project->getName()}' not found.", 1);
 		}
 
 		$this->write();
@@ -316,13 +323,13 @@ class Pug
 
 	/**
 	 * Attempt to update a single project based on its target (registered project name or filepath)
-	 * 
+	 *
 	 * @param	string	$target					Target to update
 	 * @param	boolean	$forceDependencyUpdate
 	 */
 	public function updateProject( $target, $forceDependencyUpdate=false )
 	{
-		if( $target instanceof \Pug\Project )
+		if( $target instanceof Project )
 		{
 			$project = $target;
 		}
@@ -347,5 +354,3 @@ class Pug
 		file_put_contents(PUG_CONFIG, $json);
 	}
 }
-
-?>

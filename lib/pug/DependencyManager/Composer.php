@@ -7,7 +7,7 @@ namespace Pug\DependencyManager;
 
 use Pug\Pug;
 
-class Composer implements \Pug\DependencyManager
+class Composer implements IDependencyManager
 {
 	/**
 	 * @var string
@@ -49,6 +49,7 @@ class Composer implements \Pug\DependencyManager
 	{
 		if( $this->usesComposer )
 		{
+			echo PHP_EOL;
 			echo ' • Updating Composer... ';
 
 			// a lockfile exists
@@ -74,5 +75,3 @@ class Composer implements \Pug\DependencyManager
 		return false;
 	}
 }
-
-?>

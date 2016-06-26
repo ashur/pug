@@ -5,7 +5,7 @@
  */
 namespace Pug;
 
-use \Huxtable\Output;
+use Huxtable\Output;
 
 class Project implements \JsonSerializable
 {
@@ -143,6 +143,19 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * @return	int
+	 */
+	public function getSCM()
+	{
+		if( is_null( $this->scm ) )
+		{
+			$this->detectSCM();
+		}
+
+		return $this->scm;
+	}
+
+	/**
 	 * @return	string
 	 */
 	public function getUpdated()
@@ -162,15 +175,15 @@ class Project implements \JsonSerializable
 
 		if( !$this->getFileInfo()->isDir() )
 		{
-			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' is not a valid directory" );
+			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' is not a valid directory." );
 		}
 		if( !$this->getFileInfo()->isReadable() )
 		{
-			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' isn't readable" );
+			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' isn't readable." );
 		}
 		if( $this->scm == self::SCM_ERR )
 		{
-			throw new MissingSourceControlException( "Source control not found in '{$this->path->getPathname()}'" );
+			throw new MissingSourceControlException( "Source control not found in '{$this->path->getPathname()}'." );
 		}
 
 		chdir( $this->path->getPathname() );
@@ -215,7 +228,7 @@ class Project implements \JsonSerializable
 				{
 					$resultSubmodules = Pug::executeCommand( 'git config pug.update.submodules', false );
 					$updateSubmodules = strtolower( $resultSubmodules['result'] ) != 'false';
-	
+
 					if( $updateSubmodules )
 					{
 						echo PHP_EOL;
@@ -262,5 +275,3 @@ class Project implements \JsonSerializable
 		];
 	}
 }
-
-?>
