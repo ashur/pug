@@ -31,7 +31,7 @@ $commandAdd = new CLI\Command( 'add', 'Start tracking a new project', function( 
 	}
 
 	$pug = new Pug();
-	$project = new Project( $name, $dirProject->getRealPath(), true, $dirProject->getCTime() );
+	$project = new Project( $name, $dirProject, true, $dirProject->getCTime() );
 
 	try
 	{

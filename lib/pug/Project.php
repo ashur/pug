@@ -52,8 +52,8 @@ class Project implements \JsonSerializable
 	 */
 	public function __construct($name, File\Directory $source, $enabled=true, $updated=null)
 	{
+		$this->source = new File\Directory( $source->getRealPath() );	// expand relative paths
 		$this->name = $name;
-		$this->source = $source;
 		$this->enabled = $enabled;
 		$this->updated = $updated;
 	}
