@@ -134,7 +134,8 @@ class Pug
 	/**
 	 * Execute a command, generate friendly output and return the result
 	 *
-	 * @param	string	$command
+	 * @param	string		$command
+	 * @param	boolean		$echo
 	 * @return	boolean
 	 */
 	static public function executeCommand( $command, $echo=true )
