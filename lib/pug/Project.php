@@ -5,7 +5,8 @@
  */
 namespace Pug;
 
-use Huxtable\Output;
+use Huxtable\CLI\Format;
+use Huxtable\Core\File;
 
 class Project implements \JsonSerializable
 {
@@ -24,9 +25,9 @@ class Project implements \JsonSerializable
 	protected $name;
 
 	/**
-	 * @var \SplFileInfo
+	 * @var Huxtable\Core\File\Directory
 	 */
-	protected $path;
+	protected $source;
 
 	/**
 	 * @var int
@@ -44,15 +45,15 @@ class Project implements \JsonSerializable
 	protected $usesCocoaPods=false;
 
 	/**
-	 * @param	string	$name		Name of project
-	 * @param	string	$path		Path to project directory
-	 * @param	boolean	$enabled	Enabled status
-	 * @param	string	$updated	UNIX timestamp of last update
+	 * @param	string							$name		Name of project
+	 * @param	Huxtable\Core\File\Directory	$source		Path to project directory
+	 * @param	boolean							$enabled	Enabled status
+	 * @param	string							$updated	UNIX timestamp of last update
 	 */
-	public function __construct($name, $path, $enabled=true, $updated=null)
+	public function __construct($name, File\Directory $source, $enabled=true, $updated=null)
 	{
 		$this->name = $name;
-		$this->path = new \SplFileInfo( $path );
+		$this->source = $source;
 		$this->enabled = $enabled;
 		$this->updated = $updated;
 	}
@@ -64,34 +65,41 @@ class Project implements \JsonSerializable
 	{
 		$this->scm = self::SCM_ERR;
 
-		$cwd = $this->path;
-
 		// Look for signs of SCM in working directory
+		$dirCurrent = new File\Directory( $this->source->getRealPath() );
+
 		do
 		{
-			$gitFile = new \SplFileInfo( $cwd->getRealPath() . '/.git' );
-
-			// Detecting a directory named .git instead of any matching file ensures that
-			//   we'll traverse up to and then update the project root instead of a submodule
-			if( $gitFile->isDir() )
+			try
 			{
-				$this->scm = self::SCM_GIT;
-				break;
-			}
-			else
-			{
-				$svnFile = new \SplFileInfo( $cwd->getRealPath() . '/.svn' );
+				$dirGit = $dirCurrent->childDir( '.git' );
 
-				if( $svnFile->isDir() )
+				// Detecting a directory named .git instead of any matching file ensures that
+				//   we'll traverse up to and then update the project root instead of a submodule
+				if( $dirGit->exists() )
 				{
-					$this->scm = self::SCM_SVN;
+					$this->scm = self::SCM_GIT;
 					break;
 				}
+				else
+				{
+					$dirSVN = $dirCurrent->childDir( '.svn' );
+
+					if( $dirSVN->exists() )
+					{
+						$this->scm = self::SCM_SVN;
+						break;
+					}
+				}
+			}
+			catch( \Exception $e )
+			{
+				// .git exists but it isn't a directory. This probably means we're in a submodule...
 			}
 
-			$cwd = $cwd->getPathInfo();
+			$dirCurrent = $dirCurrent->parent();
 		}
-		while( $cwd->getPathname() != $cwd->getPathInfo()->getPathname() );
+		while( $dirCurrent->getPathname() != $dirCurrent->parent()->getPathname() );
 	}
 
 	/**
@@ -123,7 +131,7 @@ class Project implements \JsonSerializable
 	 */
 	public function getFileInfo()
 	{
-		return $this->path;
+		return $this->source;
 	}
 
 	/**
@@ -139,7 +147,7 @@ class Project implements \JsonSerializable
 	 */
 	public function getPath()
 	{
-		return $this->path->getPathname();
+		return $this->source->getPathname();
 	}
 
 	/**
@@ -183,16 +191,16 @@ class Project implements \JsonSerializable
 		}
 		if( $this->scm == self::SCM_ERR )
 		{
-			throw new MissingSourceControlException( "Source control not found in '{$this->path->getPathname()}'." );
+			throw new MissingSourceControlException( "Source control not found in '{$this->source->getPathname()}'." );
 		}
 
-		chdir( $this->path->getPathname() );
+		chdir( $this->source->getPathname() );
 
 		echo "Updating '{$this->getName()}'... " . PHP_EOL . PHP_EOL;
 
 		// Set up dependency managers
-		$cocoaPods = new DependencyManager\CocoaPods( $this->path );
-		$composer = new DependencyManager\Composer( $this->path );
+		$cocoaPods = new DependencyManager\CocoaPods( $this->source );
+		$composer = new DependencyManager\Composer( $this->source );
 
 		// Update the main repository
 		switch( $this->scm )
