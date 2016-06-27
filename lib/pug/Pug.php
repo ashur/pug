@@ -6,8 +6,9 @@
 namespace Pug;
 
 use Huxtable\CLI;
+use Huxtable\Core\File;
 
-define( 'PUG_CONFIG', getenv('HOME').DIRECTORY_SEPARATOR.'.pug' );
+define( 'PUG_CONFIG', getenv('HOME') . DIRECTORY_SEPARATOR . '.pug' );
 
 class Pug
 {
@@ -22,33 +23,34 @@ class Pug
 	public function __construct()
 	{
 		$projects = [];
-		$fileInfo = new \SplFileInfo(PUG_CONFIG);
+		$fileConfig = new File\File( PUG_CONFIG );
 
-		if(!file_exists(PUG_CONFIG))
+		if( !$fileConfig->exists() )
 		{
-			touch($fileInfo->getPathname());
+			$fileConfig->create();
 		}
-		else
+		if( !$fileConfig->isReadable() )
 		{
-			if(!is_readable(PUG_CONFIG))
-			{
-				throw new CLI\Command\CommandInvokedException("Can't read from ~/.pug", 1);
-			}
-			if(!is_writable(PUG_CONFIG))
-			{
-				throw new CLI\Command\CommandInvokedException("Can't write to ~/.pug", 1);
-			}
+			throw new \Exception( 'Can\'t read from ' . PUG_CONFIG, 1 );
+		}
+		if( !$fileConfig->isWritable() )
+		{
+			throw new \Exception( 'Can\'t write to ' . PUG_CONFIG, 1);
+		}
 
-			$json = json_decode(file_get_contents(PUG_CONFIG), true);
+		$json = json_decode( $fileConfig->getContents(), true );
 
-			if(isset($json['projects']))
+		if( isset( $json['projects'] ) )
+		{
+			foreach( $json['projects'] as $projectInfo )
 			{
-				foreach($json['projects'] as $project)
-				{
-					$enabled = isset( $project['enabled'] ) ? $project['enabled'] : true;
-					$updated = isset( $project['updated'] ) ? $project['updated'] : null;
-					$this->projects[] = new Project($project['name'], $project['path'], $enabled, $updated);
-				}
+				$enabled = isset( $projectInfo['enabled'] ) ? $projectInfo['enabled'] : true;
+				$updated = isset( $projectInfo['updated'] ) ? $projectInfo['updated'] : null;
+				$dirProject = new File\Directory( $projectInfo['path'] );
+
+				$project = new Project( $projectInfo['name'], $dirProject, $enabled, $updated );
+
+				$this->projects[] = $project;
 			}
 		}
 
@@ -212,11 +214,11 @@ class Pug
 		}
 
 		// No registered project matches, let's try a file path
-		$file = new \SplFileInfo( $name );
+		$dirProject = new File\Directory( $name );
 
-		if( $file->isDir() )
+		if( $dirProject->exists() )
 		{
-			$projectPath = $file->getRealpath();
+			$projectPath = $dirProject->getRealpath();
 
 			// Let's check to see if a tracked project is already registered at this path
 			foreach( $this->projects as &$project )
@@ -228,11 +230,11 @@ class Pug
 			}
 
 			// Definitely no registered project matches, down to the bare file path itself
-			return new Project( $file->getRealpath(), $file->getRealPath() );
+			return new Project( $dirProject->getRealpath(), $dirProject );
 		}
 
 		// No project or file path matches, time to bail
-		throw new CLI\Command\CommandInvokedException( "Unknown project or directory '{$name}'.", 1 );
+		throw new \Exception( "Unknown project or directory '{$name}'." );
 	}
 
 	/**
