@@ -173,7 +173,7 @@ class Pug
 		}
 
 		return [
-			'output' => $output,
+			'output' => $outputCommand,
 			'result' => $result,
 			'exitCode' => $exitCode
 		];
