@@ -22,24 +22,30 @@ class Pug
 	 */
 	public function __construct()
 	{
-		$projects = [];
 		$fileConfig = new File\File( PUG_CONFIG );
 
+		/*
+		 * Make sure the config file is ready to go
+		 */
 		if( !$fileConfig->exists() )
 		{
 			$fileConfig->create();
 		}
+
 		if( !$fileConfig->isReadable() )
 		{
 			throw new \Exception( 'Can\'t read from ' . PUG_CONFIG, 1 );
 		}
 		if( !$fileConfig->isWritable() )
 		{
-			throw new \Exception( 'Can\'t write to ' . PUG_CONFIG, 1);
+			throw new \Exception( 'Can\'t write to ' . PUG_CONFIG, 1 );
 		}
 
 		$json = json_decode( $fileConfig->getContents(), true );
 
+		/*
+		 * Load projects
+		 */
 		if( isset( $json['projects'] ) )
 		{
 			foreach( $json['projects'] as $projectInfo )
