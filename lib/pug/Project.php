@@ -231,7 +231,7 @@ class Project implements \JsonSerializable
 				}
 
 				// Submodules
-				$modulesFile = new \SplFileInfo( $this->path->getRealPath() . '/.gitmodules' );
+				$modulesFile = $this->source->child( '.gitmodules' );
 				if( $modulesFile->isFile() )
 				{
 					$resultSubmodules = Pug::executeCommand( 'git config pug.update.submodules', false );
