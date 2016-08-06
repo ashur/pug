@@ -7,6 +7,7 @@ namespace Pug;
 
 use Huxtable\CLI;
 use Huxtable\Core\File;
+use Huxtable\Core\HTTP;
 
 define( 'PUG_CONFIG', getenv('HOME') . DIRECTORY_SEPARATOR . '.pug' );
 
@@ -187,6 +188,15 @@ class Pug
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getCurrentVersion()
+	{
+		$config = include( dirname( __DIR__ ) . '/config.php' );
+		return $config['version'];
+	}
+
+	/**
 	 * Return array of all enabled projects
 	 *
 	 * @return	array
@@ -204,6 +214,37 @@ class Pug
 		}
 
 		return $enabled;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getLatestRelease()
+	{
+		$urlRepoReleases = 'https://api.github.com/repos/ashur/pug/releases';
+
+		/* Header */
+		$httpRequest = new HTTP\Request( $urlRepoReleases );
+		$httpRequest->addHeader( 'User-Agent', 'ashur/pug' );
+
+		/* Perform request */
+		$httpResponse = HTTP::get( $httpRequest );
+		$responseStatus = $httpResponse->getStatus();
+
+		if( $responseStatus['code'] >= 400 )
+		{
+			throw new \Exception( "GitHub returned an error: '{$responseStatus['message']}'" );
+		}
+
+		$releases = json_decode( $httpResponse->getBody(), true );
+		if( json_last_error() != JSON_ERROR_NONE )
+		{
+			$jsonError = json_last_error_msg();
+			throw new \Exception( "Couldn't understand the response from GitHub: '{$jsonError}'" );
+		}
+
+		$latestRelease = array_shift( $releases );
+		return $latestRelease;
 	}
 
 	/**
@@ -349,6 +390,31 @@ class Pug
 
 		$project->update( $forceDependencyUpdate );
 		$this->write();
+	}
+
+	/**
+	 * Run 'git pull' and 'git submodule update...' on the local pug repo itself
+	 */
+	public function upgradeSelf()
+	{
+		$pathPug = dirname( dirname( __DIR__ ) );
+		$dirPug = new File\Directory( $pathPug );
+
+		chdir( $dirPug->getPathname() );
+
+		/* Pull */
+		$resultPull = self::executeCommand( 'git pull', false );
+		if( $resultPull['exitCode'] != 0 )
+		{
+			throw new \Exception( array_shift( $resultPull['output'] ) );
+		}
+
+		/* Update submodules */
+		self::executeCommand( 'git submodule update --init --recursive', false );
+		if( $resultUpdateSubmodules['exitCode'] != 0 )
+		{
+			throw new \Exception( array_shift( $resultPull['output'] ) );
+		}
 	}
 
 	/**
