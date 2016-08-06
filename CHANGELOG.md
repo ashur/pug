@@ -8,6 +8,7 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 
 - `pug upgrade`
 - ./pug -> ./bin/pug symlink
+- Self cleanup
 
 ### Fixed
 

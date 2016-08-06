@@ -24,7 +24,18 @@ Pug\Autoloader::register();
 /*
  * App configuration
  */
-$app = new Huxtable\CLI\Application( $appName, $config['version'], $config['php-min'] );
+$config = require_once( $pathLib . '/config.php' );
+$dirApp = new File\Directory( $pathBase );
+
+$app = new Huxtable\CLI\Application( $appName, $config['version'], $config['php-min'], $dirApp );
+
+/* Clean up after previous versions */
+$cleanupActions = require_once( $pathLib . '/cleanup.php' );
+foreach( $cleanupActions as $version => $action )
+{
+	$app->registerCleanupAction( $version, $action );
+}
+$app->cleanUpSelf();
 
 /*
  * Register commands
