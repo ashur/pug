@@ -2,6 +2,13 @@
 
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
+## [Unreleased]
+
+### Added
+
+- `pug.update.rebase true`
+
+
 ## [0.5.0] - 2016-08-06
 
 ### Added

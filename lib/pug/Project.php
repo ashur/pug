@@ -280,8 +280,7 @@ class Project implements \JsonSerializable
 		{
 			case self::SCM_GIT:
 
-				$resultStash = Pug::executeCommand( 'git config pug.update.stash', false );
-				$stashChanges = strtolower( $resultStash['result'] ) == 'true';
+				$stashChanges = $this->getConfigValue( 'pug.update.stash' ) == true;
 
 				if( $stashChanges )
 				{
@@ -294,13 +293,33 @@ class Project implements \JsonSerializable
 				$submoduleInventory = $this->getSubmoduleInventory();
 
 				/*
-				 * Pull
+				 * Get updates
 				 */
-				echo ' • Pulling... ';
+				 /* Fetch & Rebase */
+				if( $this->getConfigValue( 'pug.update.rebase' ) == true )
+				{
+					echo ' • Fetching... ';
+					$resultGitFetch = Pug::executeCommand( 'git fetch' );
 
-				$commandPull = 'git pull';
-				$resultGit = Pug::executeCommand( $commandPull );
+					echo PHP_EOL;
+					echo ' • Rebasing... ';
+					if( !empty( $resultGitFetch['result'] ) )
+					{
+						$resultGitRebase = Pug::executeCommand( 'git rebase' );
+					}
+					else
+					{
+						echo 'skipping, no changes to rebase.' . PHP_EOL;
+					}
+				}
+				/* Pull (Fetch & Merge) */
+				else
+				{
+					echo ' • Pulling... ';
+					Pug::executeCommand( 'git pull' );
+				}
 
+				/* Pop stash */
 				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
 				{
 					echo PHP_EOL;
