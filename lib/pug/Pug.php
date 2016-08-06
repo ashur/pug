@@ -243,6 +243,11 @@ class Pug
 			throw new \Exception( "Couldn't understand the response from GitHub: '{$jsonError}'" );
 		}
 
+		if( !is_array( $releases ) )
+		{
+			throw new \Exception( "GitHub returned an unexpected response" );
+		}
+
 		$latestRelease = array_shift( $releases );
 		return $latestRelease;
 	}
