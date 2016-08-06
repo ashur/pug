@@ -2,7 +2,7 @@
 
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
-## Unreleased
+## [0.5.0] - 2016-08-06
 
 ### Added
 
@@ -10,7 +10,7 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 
 ### Fixed
 
-- Fix `pug up` to always return submodules to their original states
+- Fix `pug update` to always return submodules to their original states
 
 ### Deprecated
 
