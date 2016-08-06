@@ -410,10 +410,10 @@ class Pug
 		}
 
 		/* Update submodules */
-		self::executeCommand( 'git submodule update --init --recursive', false );
+		$resultUpdateSubmodules = self::executeCommand( 'git submodule update --init --recursive', false );
 		if( $resultUpdateSubmodules['exitCode'] != 0 )
 		{
-			throw new \Exception( array_shift( $resultPull['output'] ) );
+			throw new \Exception( array_shift( $resultUpdateSubmodules['output'] ) );
 		}
 	}
 
