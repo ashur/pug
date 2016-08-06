@@ -320,6 +320,15 @@ class Project implements \JsonSerializable
 				echo ' • Updating working copy... ';
 				$resultSvn = Pug::executeCommand( 'svn up' );
 
+				echo PHP_EOL;
+				$stringFormatted = new Format\String();
+				$stringFormatted->setString( ' • WARNING' );
+				$stringFormatted->foregroundColor( 'yellow' );
+				echo $stringFormatted . PHP_EOL;
+
+				$stringFormatted->setString( '   # Support for Subversion is deprecated: it will be removed in pug v0.6' );
+				echo $stringFormatted . PHP_EOL;
+
 				break;
 		}
 
