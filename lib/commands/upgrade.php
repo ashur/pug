@@ -34,7 +34,9 @@ $commandUpgrade = new Command( 'upgrade', 'Fetch the newest version of Pug', fun
 	/*
 	 * Upgrade
 	 */
-	echo 'Upgrading... ';
+	echo PHP_EOL;
+	echo " • Upgrading to {$latestRelease['tag_name']}... ";
+	echo PHP_EOL . PHP_EOL;
 
 	try
 	{
@@ -42,24 +44,21 @@ $commandUpgrade = new Command( 'upgrade', 'Fetch the newest version of Pug', fun
 	}
 	catch( \Exception $e )
 	{
-		throw new Command\CommandInvokedException( "Could not upgrade: '{$e->getMessage()}'");
+		throw new Command\CommandInvokedException( "Could not upgrade: '{$e->getMessage()}'" );
 	}
-
-	echo 'done.' . PHP_EOL . PHP_EOL;
 
 	/* Display the release description */
 	$stringFormatted = new Format\String();
-	$releaseTitle = sprintf( '%s: %s', $latestRelease['tag_name'], $latestRelease['name'] );
 
-	$stringFormatted->setString( $releaseTitle );
-	$stringFormatted->foregroundColor( 'yellow' );
-	$stringFormatted->bold();
-
-	$releaseBodyLines = explode( "\r\n", $latestRelease['body'] );
+	$releaseBodyLines = explode( "\r\n", trim( $latestRelease['body'] ) );
 	foreach( $releaseBodyLines as $releaseBodyLine )
 	{
-		echo "   {$releaseBodyLine}" . PHP_EOL;
+		$stringFormatted->foregroundColor( 'green' );
+		$stringFormatted->setString( "   {$releaseBodyLine}" );
+
+		echo $stringFormatted . PHP_EOL;
 	}
+	echo PHP_EOL;
 });
 
 return $commandUpgrade;
