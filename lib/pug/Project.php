@@ -127,6 +127,36 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * @param	string	$name
+	 * @return	boolean|string
+	 */
+	public function getConfigValue( $name )
+	{
+		$commandConfig = Pug::executeCommand( "git config {$name}", false );
+
+		switch( strtolower( $commandConfig['result'] ) )
+		{
+			case '':
+				$value = null;
+				break;
+
+			case 'false':
+				$value = false;
+				break;
+
+			case 'true':
+				$value = true;
+				break;
+
+			default:
+				$value = $commandConfig['result'];
+				break;
+		}
+
+		return $value;
+	}
+
+	/**
 	 * @return	\SplFileInfo
 	 */
 	public function getFileInfo()
