@@ -7,6 +7,7 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 ### Added
 
 - `pug upgrade`
+- ./pug -> ./bin/pug symlink
 
 ### Fixed
 
