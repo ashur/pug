@@ -6,24 +6,19 @@ use Huxtable\Core\File;
 
 $appName = basename( __FILE__ );
 
-$dirBase     = dirname( __DIR__ );
-$dirLib      = $dirBase . '/lib';
-$dirApp      = $dirLib  . '/' . $appName;
-$dirCommands = $dirLib  . '/commands';
-$dirVendor   = $dirBase . '/vendor';
-
-/*
- * App configuration
- */
-$config = require_once( $dirLib . '/config.php' );
+$pathBase     = dirname( __DIR__ );
+$pathLib      = $pathBase . '/lib';
+$pathSrc      = $pathLib  . '/' . $appName;
+$pathCommands = $pathLib  . '/commands';
+$pathVendor   = $pathBase . '/vendor';
 
 /*
  * Initialize autoloading
  */
-include_once( $dirVendor . '/huxtable/cli/autoload.php' );
-include_once( $dirVendor . '/huxtable/core/autoload.php' );
+include_once( $pathVendor . '/huxtable/cli/autoload.php' );
+include_once( $pathVendor . '/huxtable/core/autoload.php' );
 
-include_once( $dirApp . '/Autoloader.php' );
+include_once( $pathSrc . '/Autoloader.php' );
 Pug\Autoloader::register();
 
 /*
@@ -39,10 +34,10 @@ $fileFilter
 ->setDefaultMethod( $fileFilter::METHOD_INCLUDE )
 ->includeFileExtension( 'php' );
 
-$commandsFolder = new File\Directory( $dirCommands );
-if( $commandsFolder->exists() )
+$dirCommands = new File\Directory( $pathCommands );
+if( $dirCommands->exists() )
 {
-	$commandFiles = $commandsFolder->children( $fileFilter );
+	$commandFiles = $dirCommands->children( $fileFilter );
 
 	foreach( $commandFiles as $commandFile )
 	{
