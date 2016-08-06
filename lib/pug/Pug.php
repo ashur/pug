@@ -14,6 +14,11 @@ define( 'PUG_CONFIG', getenv('HOME') . DIRECTORY_SEPARATOR . '.pug' );
 class Pug
 {
 	/**
+	 * @var	Huxtable\Core\File\Directory
+	 */
+	protected $dirPug;
+
+	/**
 	 * @var array
 	 */
 	protected $projects=[];
@@ -60,6 +65,12 @@ class Pug
 				$this->projects[] = $project;
 			}
 		}
+
+		/*
+		 * Define Pug directory
+		 */
+		$pathPug = dirname( dirname( __DIR__ ) );
+		$this->dirPug = new File\Directory( $pathPug );
 
 		$this->sortProjects();
 	}
@@ -192,7 +203,12 @@ class Pug
 	 */
 	public function getCurrentVersion()
 	{
-		$config = include( dirname( __DIR__ ) . '/config.php' );
+		$fileConfig = $this->dirPug
+					->childDir( 'lib' )
+					->child( 'config.php' );
+
+		$config = include( $fileConfig );
+
 		return $config['version'];
 	}
 
@@ -402,10 +418,7 @@ class Pug
 	 */
 	public function upgradeSelf()
 	{
-		$pathPug = dirname( dirname( __DIR__ ) );
-		$dirPug = new File\Directory( $pathPug );
-
-		chdir( $dirPug->getPathname() );
+		chdir( $this->dirPug->getPathname() );
 
 		/* Pull */
 		$resultPull = self::executeCommand( 'git pull', false );
