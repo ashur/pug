@@ -52,7 +52,15 @@ class Project implements \JsonSerializable
 	 */
 	public function __construct($name, File\Directory $source, $enabled=true, $updated=null)
 	{
-		$this->source = new File\Directory( $source->getRealPath() );	// expand relative paths
+		if( $source->getRealPath() != false )
+		{
+			$this->source = new File\Directory( $source->getRealPath() );	// expand relative paths
+		}
+		else
+		{
+			$this->source = $source;
+		}
+
 		$this->name = $name;
 		$this->enabled = $enabled;
 		$this->updated = $updated;
@@ -194,6 +202,41 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * Take inventory of all submodule states
+	 *
+	 * @return	array
+	 */
+	public function getSubmoduleInventory()
+	{
+		$inventory = [];
+
+		$delimiter = '{PUG_DELIMITER}';
+		$commandSubmoduleStatus = "git submodule foreach --quiet --recursive 'echo \$name {$delimiter} \$toplevel/\$path {$delimiter} \$sha1 {$delimiter} `git rev-parse --abbrev-ref HEAD`'";
+		$resultSubmoduleStatus = Pug::executeCommand( $commandSubmoduleStatus, false );
+
+		foreach( $resultSubmoduleStatus['output'] as $result )
+		{
+			$resultPieces = explode( $delimiter, $result );
+
+			$submoduleName   = trim( $resultPieces[0] );
+			$dirSubmodule    = new File\Directory( trim( $resultPieces[1] ) );
+			$submoduleCommit = trim( $resultPieces[2] );
+			$submoduleBranch = trim( $resultPieces[3] );
+
+			$projectSubmodule = new Project( $submoduleName, $dirSubmodule );
+			$inventory[$submoduleName] =
+			[
+				'project'	=> $projectSubmodule,
+				'commit'	=> $submoduleCommit,
+				'branch'	=> $submoduleBranch,
+			];
+		}
+
+		return $inventory;
+	}
+	/**
+	 * Returns a timestamp of the project's last update
+	 *
 	 * @return	string
 	 */
 	public function getUpdated()
@@ -213,11 +256,11 @@ class Project implements \JsonSerializable
 
 		if( !$this->getFileInfo()->isDir() )
 		{
-			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' is not a valid directory." );
+			throw new InvalidDirectoryException( "Project root '{$this->source}' is not a valid directory." );
 		}
 		if( !$this->getFileInfo()->isReadable() )
 		{
-			throw new InvalidDirectoryException( "Project root '{$this->getPath()}' isn't readable." );
+			throw new InvalidDirectoryException( "Project root '{$this->source}' isn't readable." );
 		}
 		if( $this->scm == self::SCM_ERR )
 		{
@@ -247,10 +290,15 @@ class Project implements \JsonSerializable
 					echo PHP_EOL;
 				}
 
-				// Build and execute 'pull' command
-				$commandPull = 'git pull';
+				// Before we update anything, take a snapshot of submodule states
+				$submoduleInventory = $this->getSubmoduleInventory();
 
+				/*
+				 * Pull
+				 */
 				echo ' • Pulling... ';
+
+				$commandPull = 'git pull';
 				$resultGit = Pug::executeCommand( $commandPull );
 
 				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
@@ -260,26 +308,10 @@ class Project implements \JsonSerializable
 					Pug::executeCommand( 'git stash pop' );
 				}
 
-				// Submodules
-				$modulesFile = $this->source->child( '.gitmodules' );
-				if( $modulesFile->isFile() )
-				{
-					$resultSubmodules = Pug::executeCommand( 'git config pug.update.submodules', false );
-					$updateSubmodules = strtolower( $resultSubmodules['result'] ) != 'false';
-
-					if( $updateSubmodules )
-					{
-						echo PHP_EOL;
-						echo ' • Updating submodules... ';
-						Pug::executeCommand( 'git submodule update --init --recursive' );
-					}
-					else
-					{
-						echo PHP_EOL;
-						echo ' • Submodule updates were skipped due to configuration';
-						echo PHP_EOL;
-					}
-				}
+				/*
+				 * Submodules
+				 */
+				$this->updateSubmodules( $submoduleInventory );
 
 				break;
 
@@ -301,13 +333,98 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * @param	array	$preInventory
+	 * @return	void
+	 */
+	public function updateSubmodules( array $preInventory )
+	{
+		$modulesFile = $this->source->child( '.gitmodules' );
+
+		if( !$modulesFile->exists() )
+		{
+			return;
+		}
+
+		$updateSubmodules = $this->getConfigValue( 'pug.update.submodules' ) !== false;
+		if( !$updateSubmodules )
+		{
+			echo PHP_EOL;
+			echo ' • Submodule updates were skipped due to configuration';
+			echo PHP_EOL;
+
+			return;
+		}
+
+		echo PHP_EOL;
+
+		/*
+		 * Perform the actual update
+		 */
+		echo ' • Updating submodules... ';
+		Pug::executeCommand( 'git submodule update --init --recursive' );
+
+		// Now that we've updated everything, take another snapshot of submodule states
+		$postInventory = $this->getSubmoduleInventory();
+
+		/*
+		 * Restore submodules to previous states as appropriate
+		 */
+		foreach( $preInventory as $submoduleName => $preUpdateInfo )
+		{
+			$projectSubmodule = $preUpdateInfo['project'];
+			$pathSubmodule = $projectSubmodule->getPath();
+
+			$stringFormatted = new Format\String();
+			$stringFormatted->foregroundColor( 'blue' );
+
+			$postUpdateInfo = $postInventory[$submoduleName];
+
+			/*
+			 * Submodules that were checked out to a branch before the update
+			 */
+			if( $preUpdateInfo['branch'] != 'HEAD' )
+			{
+				/*
+				 * We're in a detached state now
+				 */
+				if( $preUpdateInfo['branch'] != $postUpdateInfo['branch'] )
+				{
+					chdir( $pathSubmodule );
+
+					// Check the submodule out the the previous branch
+					Pug::executeCommand( "git checkout {$preUpdateInfo['branch']}", false );
+
+					$messageCheckout = "   % Submodule path '{$projectSubmodule->getName()}': checked out '{$preUpdateInfo['branch']}'";
+					$stringFormatted->setString( $messageCheckout );
+					echo $stringFormatted . PHP_EOL;
+				}
+
+				// If the pointer has changed, we should pull down submodule changes as well...?
+				if( $preUpdateInfo['commit'] != $postUpdateInfo['commit'] )
+				{
+					chdir( $pathSubmodule );
+
+					$messagePulling = "   % Submodule path '{$projectSubmodule->getName()}': pulling '{$preUpdateInfo['branch']}'... ";
+					$stringFormatted->setString( $messagePulling );
+					echo $stringFormatted;
+
+					Pug::executeCommand( 'git pull', false );
+
+					$stringFormatted->setString( 'done.' );
+					echo $stringFormatted . PHP_EOL;
+				}
+			}
+		}
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function jsonSerialize()
 	{
 		return [
 			'name' => $this->getName(),
-			'path' => $this->getPath(),
+			'path' => $this->source->getRealPath(),
 			'enabled' => $this->enabled,
 			'updated' => $this->updated
 		];
