@@ -9,7 +9,7 @@ return array(
 	/*
 	 * Application version
 	 */
-	'version' => '0.5.0b1',
+	'version' => '0.5.0',
 
 	/*
 	 * PHP minimum version
