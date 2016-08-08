@@ -30,6 +30,15 @@ $ cd ~/tools/pug
 $ pug up
 ```
 
+> 💡 **Tip** — Not sure which version you're running?
+>
+> ```
+> $ pug --version
+> pug version 0.5.0
+> ```
+>
+> Nice. 😁
+
 ### Extra Credit
 
 Let's say you cloned Pug to a local directory `~/tools`:
