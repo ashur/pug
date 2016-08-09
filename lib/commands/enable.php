@@ -43,6 +43,6 @@ $commandEnable = new CLI\Command( 'enable', 'Include projects in \'all\' updates
 	return listProjects( $pug->getProjects() );
 });
 
-$commandEnable->setUsage( 'enable [<name>|<namespace>]' );
+$commandEnable->setUsage( 'enable [<name>|<namespace>|all]' );
 
 return $commandEnable;

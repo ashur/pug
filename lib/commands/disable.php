@@ -43,6 +43,6 @@ $commandDisable = new CLI\Command( 'disable', 'Exclude projects from \'all\' upd
 	return listProjects( $pug->getProjects() );
 });
 
-$commandDisable->setUsage( 'disable [<name>|<namespace>]' );
+$commandDisable->setUsage( 'disable [<name>|<namespace>|all]' );
 
 return $commandDisable;
