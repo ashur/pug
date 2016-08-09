@@ -303,14 +303,7 @@ class Project implements \JsonSerializable
 
 					echo PHP_EOL;
 					echo ' • Rebasing... ';
-					if( !empty( $resultGitFetch['result'] ) )
-					{
-						$resultGitRebase = Pug::executeCommand( 'git rebase' );
-					}
-					else
-					{
-						echo 'skipping, no changes to rebase.' . PHP_EOL;
-					}
+					$resultGitRebase = Pug::executeCommand( 'git rebase' );
 				}
 				/* Pull (Fetch & Merge) */
 				else
