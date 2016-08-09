@@ -6,33 +6,75 @@
 namespace Pug;
 
 use Huxtable\CLI;
+use Huxtable\CLI\Command;
 
 /**
  * @command		update
  * @desc		Fetch project updates
- * @usage		update [<name>]
+ * @usage		update [all|<namespace> [--all]|<path>|<project>]
  * @alias		remove,untrack
  */
-$commandUpdate = new CLI\Command('update', 'Fetch project updates', function()
+$commandUpdate = new CLI\Command('update', 'Fetch project updates', function( $query='./' )
 {
 	$pug = new Pug();
-	$sources = func_get_args();
 
 	$options = $this->getOptionsWithValues();
 	$forceDependencyUpdate = isset( $options['f'] ) || isset( $options['force'] );
 
-	if( count( $sources ) == 0 )
+	/*
+	 * Determine which projects we're going to update...
+	 *
+	 *   The default behavior (with no arguments) is to attempt updating the working directory './'
+	 *
+	 *   Note: Given the increased flexibility with Namespace support, 'pug update' no longer
+	 *   supports multiple arguments.
+	 */
+	$projects = [];
+
+	try
 	{
-		$sources[] = '.';
+		if( $query == 'all' )
+		{
+			$projects = $pug->getEnabledProjects();
+		}
+		elseif( $pug->namespaceExists( $query ) )
+		{
+			$namespaceProjects = $pug->getProjectsInNamespace( $query );
+
+			/* Add all, including disabled */
+			if( $this->getOptionValue( 'all' ) )
+			{
+				$projects = $namespaceProjects;
+			}
+			/* Add all enabled */
+			else
+			{
+				foreach( $namespaceProjects as $namespaceProject )
+				{
+					if( $namespaceProject->isEnabled() )
+					{
+						$projects[] = $namespaceProject;
+					}
+				}
+			}
+		}
+		// ...or is this a project?
+		else
+		{
+			$projects[] = $pug->getProject( $query );
+		}
 	}
-	if( $sources[0] == 'all' )
+	catch( \Exception $e )
 	{
-		$sources = $pug->getEnabledProjects();
+		throw new Command\CommandInvokedException( "No projects or namespaces match '{$query}'.", 1 );
 	}
 
-	for( $i=0; $i < count ($sources); $i++ )
+	/*
+	 * Now update them
+	 */
+	for( $i=0; $i < count( $projects ); $i++ )
 	{
-		$target = $sources[$i];
+		$target = $projects[$i];
 
 		try
 		{
@@ -41,7 +83,7 @@ $commandUpdate = new CLI\Command('update', 'Fetch project updates', function()
 		catch( \Exception $e )
 		{
 			// Standard single-line failure with exit code
-			if( count( $sources ) == 1 && $target != 'all' )
+			if( count( $projects ) == 1 && $query != 'all' )
 			{
 				throw new CLI\Command\CommandInvokedException( $e->getMessage(), 1 );
 			}
@@ -61,16 +103,19 @@ $commandUpdate = new CLI\Command('update', 'Fetch project updates', function()
 });
 
 $commandUpdate->addAlias('up');
+$commandUpdate->registerOption( 'all', 'Update all projects in namespace, even when disabled' );
 $commandUpdate->registerOption( 'f', 'Force dependency managers to update' );
 $commandUpdate->registerOption( 'force', 'Force dependency managers to update' );
 
 $updateUsage = <<<USAGE
-update [options] [all|<path>|<project>...]
+update [options] [all|<namespace> [--all]|<path>|<project>]
 
 OPTIONS
+     --all
+         update all projects in namespace, including disabled projects
+
      -f, --force
          force dependency managers (ex., CocoaPods) to update
-
 
 USAGE;
 

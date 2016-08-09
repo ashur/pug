@@ -402,6 +402,12 @@ class Pug
 	 */
 	public function getProjectsInNamespace( $namespace )
 	{
+		// Strip trailing '/'
+		if( substr( $namespace, -1 ) == Project::NAMESPACE_DELIMITER )
+		{
+			$namespace = substr( $namespace, 0, strlen( $namespace ) - 1 );
+		}
+
 		if( !$this->namespaceExists( $namespace ) )
 		{
 			throw new \Exception( "Namespace '{$namespace}' not found." );
@@ -426,6 +432,12 @@ class Pug
 	 */
 	public function namespaceExists( $namespace )
 	{
+		// Strip trailing '/'
+		if( substr( $namespace, -1 ) == Project::NAMESPACE_DELIMITER )
+		{
+			$namespace = substr( $namespace, 0, strlen( $namespace ) - 1 );
+		}
+
 		return in_array( $namespace, $this->namespaces );
 	}
 
