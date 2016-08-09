@@ -19,6 +19,11 @@ class Pug
 	protected $dirPug;
 
 	/**
+	 * @var	array
+	 */
+	protected $namespaces=[];
+
+	/**
 	 * @var array
 	 */
 	protected $projects=[];
@@ -63,6 +68,13 @@ class Pug
 				$project = new Project( $projectInfo['name'], $dirProject, $enabled, $updated );
 
 				$this->projects[] = $project;
+
+				/* Namespace */
+				$projectNamespace = $project->getNamespace();
+				if( !is_null( $projectNamespace ) && !in_array( $projectNamespace, $this->namespaces ) )
+				{
+					$this->namespaces[] = $projectNamespace;
+				}
 			}
 		}
 
@@ -98,6 +110,19 @@ class Pug
 	}
 
 	/**
+	 * @return	void
+	 */
+	public function disableAllProjects()
+	{
+		foreach( $this->projects as &$project )
+		{
+			$project->disable();
+		}
+
+		$this->write();
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	void
 	 */
@@ -124,6 +149,38 @@ class Pug
 	}
 
 	/**
+	 * @param	string	$namespace
+	 * @return	void
+	 */
+	public function disableProjectsInNamespace( $namespace )
+	{
+		$projects = $this->getProjectsInNamespace( $namespace );
+
+		foreach( $projects as &$project )
+		{
+			if( $project->getNamespace() == $namespace )
+			{
+				$project->disable();
+			}
+		}
+
+		$this->write();
+	}
+
+	/**
+	 * @return	void
+	 */
+	public function enableAllProjects()
+	{
+		foreach( $this->projects as &$project )
+		{
+			$project->enable();
+		}
+
+		$this->write();
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	void
 	 */
@@ -144,6 +201,25 @@ class Pug
 		if($enabled == 0)
 		{
 			throw new CLI\Command\CommandInvokedException("Project '{$name}' not found.", 1);
+		}
+
+		$this->write();
+	}
+
+	/**
+	 * @param	string	$namespace
+	 * @return	void
+	 */
+	public function enableProjectsInNamespace( $namespace )
+	{
+		$projects = $this->getProjectsInNamespace( $namespace );
+
+		foreach( $projects as &$project )
+		{
+			if( $project->getNamespace() == $namespace )
+			{
+				$project->enable();
+			}
 		}
 
 		$this->write();
@@ -318,6 +394,39 @@ class Pug
 		}
 
 		return $this->projects;
+	}
+
+	/**
+	 * @param	string	$namespace
+	 * @return	array
+	 */
+	public function getProjectsInNamespace( $namespace )
+	{
+		if( !$this->namespaceExists( $namespace ) )
+		{
+			throw new \Exception( "Namespace '{$namespace}' not found." );
+		}
+
+		$matches = [];
+
+		foreach( $this->projects as $project )
+		{
+			if( $project->getNamespace() == $namespace )
+			{
+				$matches[] = $project;
+			}
+		}
+
+		return $matches;
+	}
+
+	/**
+	 * @param	string	$namespace
+	 * @return	boolean
+	 */
+	public function namespaceExists( $namespace )
+	{
+		return in_array( $namespace, $this->namespaces );
 	}
 
 	/**
