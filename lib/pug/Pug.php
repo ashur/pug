@@ -430,6 +430,16 @@ class Pug
 	}
 
 	/**
+	 * @return	void
+	 */
+	public function removeAllProjects()
+	{
+		$this->projects = [];
+
+		$this->write();
+	}
+
+	/**
 	 * @param	string	$name
 	 */
 	public function removeProject($name)
@@ -449,6 +459,25 @@ class Pug
 		if( $removed == 0 )
 		{
 			throw new CLI\Command\CommandInvokedException("Project '{$name}' not found.", 1);
+		}
+
+		$this->write();
+	}
+
+	/**
+	 * @param	string	$namespace
+	 * @return	void
+	 */
+	public function removeProjectsInNamespace( $namespace )
+	{
+		$projects = $this->getProjectsInNamespace( $namespace );
+
+		foreach( $projects as &$project )
+		{
+			if( $project->getNamespace() == $namespace )
+			{
+				$this->removeProject( $project->getName() );
+			}
 		}
 
 		$this->write();
