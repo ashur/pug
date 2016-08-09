@@ -10,6 +10,8 @@ use Huxtable\Core\File;
 
 class Project implements \JsonSerializable
 {
+	const NAMESPACE_DELIMITER = '/';
+
 	const SCM_GIT = 1;
 	const SCM_SVN = 2;
 	const SCM_ERR = 3;
@@ -23,6 +25,11 @@ class Project implements \JsonSerializable
 	 * @var string
 	 */
 	protected $name;
+
+	/**
+	 * @var	string
+	 */
+	protected $namespace;
 
 	/**
 	 * @var Huxtable\Core\File\Directory
@@ -50,7 +57,7 @@ class Project implements \JsonSerializable
 	 * @param	boolean							$enabled	Enabled status
 	 * @param	string							$updated	UNIX timestamp of last update
 	 */
-	public function __construct($name, File\Directory $source, $enabled=true, $updated=null)
+	public function __construct( $name, File\Directory $source, $enabled=true, $updated=null )
 	{
 		if( $source->getRealPath() != false )
 		{
@@ -61,7 +68,17 @@ class Project implements \JsonSerializable
 			$this->source = $source;
 		}
 
+		/*
+		 * Parse for namespace
+		 */
+		if( substr_count( $name, self::NAMESPACE_DELIMITER ) > 0 )
+		{
+			$namePieces = explode( self::NAMESPACE_DELIMITER, $name );
+			$this->namespace = $namePieces[0];
+		}
+
 		$this->name = $name;
+
 		$this->enabled = $enabled;
 		$this->updated = $updated;
 	}
@@ -178,6 +195,14 @@ class Project implements \JsonSerializable
 	public function getName()
 	{
 		return $this->name;
+	}
+
+	/**
+	 * @return	string|null
+	 */
+	public function getNamespace()
+	{
+		return $this->namespace;
 	}
 
 	/**
