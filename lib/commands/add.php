@@ -11,7 +11,7 @@ use Huxtable\Core\File;
 /**
  * @command		add
  * @desc		Start tracking a new project
- * @usage		add <name> <path>
+ * @usage		add [<group>/]<name> <path>
  * @alias		track
  */
 $commandAdd = new CLI\Command( 'add', 'Start tracking a new project', function( $name, $path )
@@ -46,5 +46,6 @@ $commandAdd = new CLI\Command( 'add', 'Start tracking a new project', function( 
 });
 
 $commandAdd->addAlias( 'track' );
+$commandAdd->setUsage( 'add [<group>/]<name> <path>' );
 
 return $commandAdd;
