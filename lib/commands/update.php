@@ -11,7 +11,7 @@ use Huxtable\CLI\Command;
 /**
  * @command		update
  * @desc		Fetch project updates
- * @usage		update [all|<namespace> [--all]|<path>|<project>]
+ * @usage		update [all|<group> [--all]|<project>|<path>]
  * @alias		remove,untrack
  */
 $commandUpdate = new CLI\Command('update', 'Fetch project updates', function( $query='./' )
@@ -66,7 +66,7 @@ $commandUpdate = new CLI\Command('update', 'Fetch project updates', function( $q
 	}
 	catch( \Exception $e )
 	{
-		throw new Command\CommandInvokedException( "No projects or namespaces match '{$query}'.", 1 );
+		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
 	/*
@@ -102,17 +102,17 @@ $commandUpdate = new CLI\Command('update', 'Fetch project updates', function( $q
 	}
 });
 
-$commandUpdate->addAlias('up');
-$commandUpdate->registerOption( 'all', 'Update all projects in namespace, even when disabled' );
+$commandUpdate->addAlias( 'up' );
+$commandUpdate->registerOption( 'all', 'Update all projects in the group, even if disabled' );
 $commandUpdate->registerOption( 'f', 'Force dependency managers to update' );
 $commandUpdate->registerOption( 'force', 'Force dependency managers to update' );
 
 $updateUsage = <<<USAGE
-update [options] [all|<namespace> [--all]|<path>|<project>]
+update [-f|--force] [all|<group> [--all]|<project>|<path>]
 
 OPTIONS
      --all
-         update all projects in namespace, including disabled projects
+         update all projects in the group, even if disabled
 
      -f, --force
          force dependency managers (ex., CocoaPods) to update

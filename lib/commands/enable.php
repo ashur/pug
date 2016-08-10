@@ -11,7 +11,7 @@ use Huxtable\CLI\Command;
 /**
  * @command		enable
  * @desc		Include projects in 'all' updates
- * @usage		enable [<name>|<namespace>|all]
+ * @usage		enable [all|<group>|<project>]
  */
 $commandEnable = new CLI\Command( 'enable', 'Include projects in \'all\' updates', function( $query )
 {
@@ -37,12 +37,12 @@ $commandEnable = new CLI\Command( 'enable', 'Include projects in \'all\' updates
 	}
 	catch( \Exception $e )
 	{
-		throw new Command\CommandInvokedException( "No projects or namespaces match '{$query}'.", 1 );
+		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
 	return listProjects( $pug->getProjects() );
 });
 
-$commandEnable->setUsage( 'enable [<name>|<namespace>|all]' );
+$commandEnable->setUsage( 'enable [all|<group>|<project>]' );
 
 return $commandEnable;

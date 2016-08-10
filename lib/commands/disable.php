@@ -11,7 +11,7 @@ use Huxtable\CLI\Command;
 /**
  * @command		disable
  * @desc		Exclude projects from 'all' updates
- * @usage		disable [<name>|<namespace>|all]
+ * @usage		disable [all|<group>|<project>]
  */
 $commandDisable = new CLI\Command( 'disable', 'Exclude projects from \'all\' updates', function( $query )
 {
@@ -37,12 +37,12 @@ $commandDisable = new CLI\Command( 'disable', 'Exclude projects from \'all\' upd
 	}
 	catch( \Exception $e )
 	{
-		throw new Command\CommandInvokedException( "No projects or namespaces match '{$query}'.", 1 );
+		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
 	return listProjects( $pug->getProjects() );
 });
 
-$commandDisable->setUsage( 'disable [<name>|<namespace>|all]' );
+$commandDisable->setUsage( 'disable [all|<group>|<project>]' );
 
 return $commandDisable;
