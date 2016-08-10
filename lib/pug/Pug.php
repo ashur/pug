@@ -492,6 +492,40 @@ class Pug
 	}
 
 	/**
+	 * @param	string	$oldName
+	 * @param	string	$newName
+	 * @return	void
+	 */
+	public function renameProject( $oldName, $newName )
+	{
+		// Does another project already have the desired name?
+		try
+		{
+			$project = $this->getProject( $oldName );
+		}
+		catch( \Exception $e )
+		{
+			throw new \Exception( "No project matches '{$oldName}'." );
+		}
+
+		// Does another project already have the desired name?
+		try
+		{
+			$this->getProject( $newName );
+		}
+		catch( \Exception $e )
+		{
+			// Counterintuitively, an exception means there was no match so we can proceed.
+			$project->setName( $newName );
+			$this->write();
+
+			return;
+		}
+
+		throw new \Exception( "A project named '{$newName}' already exists." );
+	}
+
+	/**
 	 * @param	Project	$project
 	 */
 	public function setPathForProject(Project $project)

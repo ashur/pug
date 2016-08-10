@@ -275,6 +275,15 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * @param	string	$name
+	 * @return	void
+	 */
+	public function setName( $name )
+	{
+		$this->name = $name;
+	}
+
+	/**
 	 * Update a project's working copy and its dependencies
 	 *
 	 * @param	boolean	$forceDependencyUpdate
