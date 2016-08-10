@@ -222,10 +222,6 @@ _pug.update.**submodules**_
 
 It's important for you to know what Pug is doing on your behalf during `pug update`. In order of operations:
 
-### Git
-
-If a project is using Git:
-
 ```bash
 git pull
 git submodule update --init --recursive
@@ -238,16 +234,6 @@ git fetch
 git rebase
 git submodule update --init --recursive
 ```
-
-### Subversion
-
-If a project is using Subversion, Pug runs one command:
-
-```bash
-svn up
-```
-
-> ⚠️ **Note** — Support for Subversion is deprecated, and will be removed in v0.6.
 
 ### Dependency Managers
 

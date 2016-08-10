@@ -10,6 +10,9 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 ### Fixed
 - Always rebase, not just when changes are fetched
 
+### Removed
+- Subversion support
+
 ## [0.5.0] - 2016-08-06
 ### Added
 - `pug upgrade`

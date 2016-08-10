@@ -13,7 +13,7 @@ class Project implements \JsonSerializable
 	const NAMESPACE_DELIMITER = '/';
 
 	const SCM_GIT = 1;
-	const SCM_SVN = 2;
+	const SCM_SVN = 2;	// left for historical purposes
 	const SCM_ERR = 3;
 
 	/**
@@ -105,16 +105,6 @@ class Project implements \JsonSerializable
 				{
 					$this->scm = self::SCM_GIT;
 					break;
-				}
-				else
-				{
-					$dirSVN = $dirCurrent->childDir( '.svn' );
-
-					if( $dirSVN->exists() )
-					{
-						$this->scm = self::SCM_SVN;
-						break;
-					}
 				}
 			}
 			catch( \Exception $e )
@@ -316,75 +306,54 @@ class Project implements \JsonSerializable
 		$composer = new DependencyManager\Composer( $this->source );
 
 		// Update the main repository
-		switch( $this->scm )
+		$stashChanges = $this->getConfigValue( 'pug.update.stash' ) == true;
+
+		if( $stashChanges )
 		{
-			case self::SCM_GIT:
-
-				$stashChanges = $this->getConfigValue( 'pug.update.stash' ) == true;
-
-				if( $stashChanges )
-				{
-					echo  ' • Stashing local changes... ';
-					$resultStashed = Pug::executeCommand( 'git stash save "pug: automatically stashing changes"' );
-					echo PHP_EOL;
-				}
-
-				// Before we update anything, take a snapshot of submodule states
-				$submoduleInventory = $this->getSubmoduleInventory();
-
-				/*
-				 * Get updates
-				 */
-				 /* Fetch & Rebase */
-				if( $this->getConfigValue( 'pug.update.rebase' ) == true )
-				{
-					echo ' • Fetching... ';
-					$resultGitFetch = Pug::executeCommand( 'git fetch' );
-
-					echo PHP_EOL;
-					echo ' • Rebasing... ';
-					$resultGitRebase = Pug::executeCommand( 'git rebase' );
-				}
-				/* Pull (Fetch & Merge) */
-				else
-				{
-					echo ' • Pulling... ';
-					Pug::executeCommand( 'git pull' );
-				}
-
-				/* Pop stash */
-				if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
-				{
-					echo PHP_EOL;
-					echo  ' • Popping stash... ';
-					Pug::executeCommand( 'git stash pop' );
-				}
-
-				/*
-				 * Submodules
-				 */
-				$this->updateSubmodules( $submoduleInventory );
-
-				break;
-
-			case self::SCM_SVN:
-
-				echo ' • Updating working copy... ';
-				$resultSvn = Pug::executeCommand( 'svn up' );
-
-				echo PHP_EOL;
-				$stringFormatted = new Format\String();
-				$stringFormatted->setString( ' • WARNING' );
-				$stringFormatted->foregroundColor( 'yellow' );
-				echo $stringFormatted . PHP_EOL;
-
-				$stringFormatted->setString( '   # Support for Subversion is deprecated: it will be removed in pug v0.6' );
-				echo $stringFormatted . PHP_EOL;
-
-				break;
+			echo  ' • Stashing local changes... ';
+			$resultStashed = Pug::executeCommand( 'git stash save "pug: automatically stashing changes"' );
+			echo PHP_EOL;
 		}
 
-		// Update dependencies if necessary
+		// Before we update anything, take a snapshot of submodule states
+		$submoduleInventory = $this->getSubmoduleInventory();
+
+		/*
+		 * Get updates
+		 */
+		 /* Fetch & Rebase */
+		if( $this->getConfigValue( 'pug.update.rebase' ) == true )
+		{
+			echo ' • Fetching... ';
+			$resultGitFetch = Pug::executeCommand( 'git fetch' );
+
+			echo PHP_EOL;
+			echo ' • Rebasing... ';
+			$resultGitRebase = Pug::executeCommand( 'git rebase' );
+		}
+		/* Pull (Fetch & Merge) */
+		else
+		{
+			echo ' • Pulling... ';
+			Pug::executeCommand( 'git pull' );
+		}
+
+		/* Pop stash */
+		if( $stashChanges && $resultStashed['result'] != 'No local changes to save' )
+		{
+			echo PHP_EOL;
+			echo  ' • Popping stash... ';
+			Pug::executeCommand( 'git stash pop' );
+		}
+
+		/*
+		 * Submodules
+		 */
+		$this->updateSubmodules( $submoduleInventory );
+
+		/*
+		 * Update dependencies if necessary
+		 */
 		$cocoaPods->update( $forceDependencyUpdate );
 		$composer->update( $forceDependencyUpdate );
 
