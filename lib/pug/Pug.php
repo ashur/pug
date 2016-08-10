@@ -154,6 +154,8 @@ class Pug
 	 */
 	public function disableProjectsInNamespace( $namespace )
 	{
+		$namespace = Project::getNormalizedNamespaceString( $namespace );
+
 		$projects = $this->getProjectsInNamespace( $namespace );
 
 		foreach( $projects as &$project )
@@ -212,6 +214,8 @@ class Pug
 	 */
 	public function enableProjectsInNamespace( $namespace )
 	{
+		$namespace = Project::getNormalizedNamespaceString( $namespace );
+
 		$projects = $this->getProjectsInNamespace( $namespace );
 
 		foreach( $projects as &$project )
@@ -402,11 +406,7 @@ class Pug
 	 */
 	public function getProjectsInNamespace( $namespace )
 	{
-		// Strip trailing '/'
-		if( substr( $namespace, -1 ) == Project::NAMESPACE_DELIMITER )
-		{
-			$namespace = substr( $namespace, 0, strlen( $namespace ) - 1 );
-		}
+		$namespace = Project::getNormalizedNamespaceString( $namespace );
 
 		if( !$this->namespaceExists( $namespace ) )
 		{
@@ -432,11 +432,7 @@ class Pug
 	 */
 	public function namespaceExists( $namespace )
 	{
-		// Strip trailing '/'
-		if( substr( $namespace, -1 ) == Project::NAMESPACE_DELIMITER )
-		{
-			$namespace = substr( $namespace, 0, strlen( $namespace ) - 1 );
-		}
+		$namespace = Project::getNormalizedNamespaceString( $namespace );
 
 		return in_array( $namespace, $this->namespaces );
 	}

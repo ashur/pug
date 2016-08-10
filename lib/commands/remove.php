@@ -33,10 +33,12 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 		// Is this a namespace?
 		elseif( $pug->namespaceExists( $query ) )
 		{
-			$didConfirm = strtolower( Input::prompt( "Are you sure you want to remove all projects in the '{$query}' group? (y/n)" ) );
+			$namespace = Project::getNormalizedNamespaceString( $query );
+
+			$didConfirm = strtolower( Input::prompt( "Are you sure you want to remove all projects in the '{$namespace}' group? (y/n)" ) );
 			if( $didConfirm == 'y' )
 			{
-				$pug->removeProjectsInNamespace( $query );
+				$pug->removeProjectsInNamespace( $namespace );
 			}
 		}
 		// ...or is this a project?

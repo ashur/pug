@@ -74,7 +74,7 @@ class Project implements \JsonSerializable
 		if( substr_count( $name, self::NAMESPACE_DELIMITER ) > 0 )
 		{
 			$namePieces = explode( self::NAMESPACE_DELIMITER, $name );
-			$this->namespace = $namePieces[0];
+			$this->namespace = self::getNormalizedNamespaceString( $namePieces[0] );
 		}
 
 		$this->name = $name;
@@ -203,6 +203,21 @@ class Project implements \JsonSerializable
 	public function getNamespace()
 	{
 		return $this->namespace;
+	}
+
+	/**
+	 * @param	string	$namespace
+	 * @return	string
+	 */
+	static public function getNormalizedNamespaceString( $namespace )
+	{
+		// Strip trailing '/'
+		if( substr( $namespace, -1 ) == Project::NAMESPACE_DELIMITER )
+		{
+			$namespace = substr( $namespace, 0, strlen( $namespace ) - 1 );
+		}
+
+		return $namespace;
 	}
 
 	/**
