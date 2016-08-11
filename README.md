@@ -5,7 +5,7 @@ One command is all you need to update local repositories and their submodules. I
 
 ## Installation
 
-```bash
+```
 $ git clone --recursive https://github.com/ashur/pug.git
 ```
 
@@ -50,7 +50,7 @@ $ git clone --recursive https://github.com/ashur/pug.git
 
 You'll probably want to symlink the Pug executable to a directory already on your `$PATH`:
 
-```bash
+```
 $ ln -s ~/tools/pug/bin/pug /usr/local/bin/pug
 ```
 
@@ -58,30 +58,199 @@ This lets you run `pug` commands from anywhere on the command line, not just fro
 
 Alternatively, you can add the repository's `bin` folder to your environment `$PATH`. For example:
 
-```bash
+```
 export PATH=$PATH:$HOME/tools/pug/bin
 ```
 
 
-## 🐶 Basic Usage
+## Basics
 
-### Update
+After you've installed Pug, try updating a local Git repository at any path:
 
-Pull changes _and_ update submodules with a single command:
-
-```bash
-$ pug update ~/Developer/access
-Updating '/Users/Ashur/Developer/access'...
+```
+$ pug update ~/Developer/tapas
+Updating '/Users/ashur/Developer/tapas'...
 
  • Pulling...
    > Already up-to-date.
 
- • Updating submodules...
-   > Submodule path 'vendor/huxtable': checked out '0cccd17fe78fdd9a778f5025b244eafc68553764'
+ • Updating submodules... done.
+```
+
+By default, `pug update` performs two operations on the repository:
+
+* `git pull`
+* `git submodule update`
+
+> 🔬 [Learn more](#update) about the specifics of what Pug does during an update. You can re-configure the default behavior on a global or per-repository basis. See [Configuration](#configuration) for more information.
+
+Using Pug to update repositories at an arbitrary path is nice, but projects make things even easier.
+
+
+### Projects
+
+First, let's add a repository to our list of tracked projects:
+
+```
+$ pug add plank ~/Developer/plank
+* plank
+```
+
+Now we can grab updates using the project name instead of the full path:
+
+```
+$ pug update plank
+```
+
+That's nicer! Let's add a few more projects:
+
+```
+$ pug show
+* plank
+* prompt
+* transmit
+```
+
+With a single command, we can update multiple projects _and_ their submodules.
+
+```
+$ pug update all
+```
+
+### Enable/Disable
+
+Need to focus on a subset of your projects for a while? Disable anything you don't need:
+
+```
+$ pug disable prompt
+* plank
+  prompt
+* transmit
+```
+
+Pug will hold on to the project definition, but skip it when you `update all`:
+
+```
+$ pug update all
+Updating 'plank'...
+
+ • Pulling...
+   > Already up-to-date.
+
+Updating 'transmit'...
+
+ • Pulling...
+   > Already up-to-date.
+
+   • Updating submodules... done.
 
 ```
 
-#### Submodule State Restoration
+
+### Groups
+
+> 🎉 **New in v0.6**
+
+As the list of tracked projects grows, it can get harder to stay organized:
+
+```
+$ pug show
+* ansible
+* cios
+* dotfiles
+* mlib
+  plank
+  prompt
+* tapas
+* tios
+* transmit
+* zoo
+```
+
+Groups help keep things nice and tidy. To add a new project to a group, use the `<group>/<project>` naming pattern:
+
+```
+$ pug add mac/coda ~/Developer/Coda
+```
+
+To move an existing project into a group, just rename it:
+
+```
+$ pug rename ansible sysops/ansible
+```
+
+Much better:
+
+```
+$ pug show
+* bots/mlib
+* bots/zoo
+* dotfiles
+* ios/coda
+  ios/prompt
+* ios/transmit
+* mac/coda
+* mac/transmit
+* sysops/ansible
+  web/plank
+* web/tapas
+```
+
+In addition to keeping projects organized, we can also perform operations on groups just like individual projects. Done with `ios` for a while? Disable all the projects in that group:
+
+```
+$ pug disable ios
+```
+
+Want to update just the projects in your `bots` group? Simple!
+
+```
+$ pug update bots
+```
+
+> 💡 **Tip** — Add `--all` to update disabled projects in the group as well
+
+
+## Update
+
+It's important for you to know what Pug is doing on your behalf during `pug update`. In order of operations:
+
+```
+git pull
+git submodule update --init --recursive
+```
+
+If the `pug.update.rebase` configuration option is set to `true`, Pug will instead run:
+
+```
+git fetch
+git rebase
+git submodule update --init --recursive
+```
+
+> 🔬 [Learn more](#configuration) about how to configure `pug update` to suit your needs
+
+### Dependency Managers
+
+If Pug detects CocoaPods, it will try to determine if an update is necessary. If so:
+
+```
+pod install
+```
+
+If Pug detects Composer and determines an update is necessary:
+
+```
+composer update
+```
+
+To force dependency updates:
+
+```
+$ pug update <target> --force
+```
+
+### Submodule State Restoration
 
 > 🎉 **New in v0.5**
 
@@ -109,86 +278,18 @@ Updating 'tapas'...
 
 > **Note** — If a submodule is checked out on a detached HEAD prior to the update, `pug update` leaves it that way.
 
-### Tracking
 
-If you juggle multiple projects that need to stay up-to-date, Pug really shines with tracking:
+## Configuration
 
-```bash
-$ pug add tapas ~/Developer/tapas
-* dotfiles
-* plank
-* tapas
-```
+Pug supports a few configuration options by piggybacking Git's own `config` command. They can be set either globally (using the `--global` flag) or on a per-project basis.
 
-Updating a tracked project is easy:
-
-```bash
-$ pug update tapas
-```
-
-Updating all your projects at once is even easier:
-
-```bash
-$ pug update all
-Updating 'dotfiles'...
-
- • Pulling...
-   > Already up-to-date.
- • Updating submodules... done.
-
-Updating 'plank'...
-
- • Pulling...
-   > Already up-to-date.
- • Updating Composer... done.
-
-Updating 'tapas'...
-
- • Pulling...
-   > Already up-to-date.
+For example, we can change the global `pug update` behavior to always automatically stash changes:
 
 ```
-
-### Enable/Disable
-
-Need to focus on a subset of your projects for a while? Disable anything you don't need:
-
-```bash
-$ pug disable plank
-* dotfiles
-  plank
-* tapas
-```
-
-Pug will hold on to the project definition, but skip it when you `update all`:
-
-```bash
-$ pug update all
-Updating 'dotfiles'...
-
- • Pulling...
-   > Already up-to-date.
- • Updating submodules... done.
-
-Updating 'tapas'...
-
- • Pulling...
-   > Already up-to-date.
-
-```
-
-
-## ⚙ Configuration
-
-Using a custom section of Git's own `config` command, Pug supports a few configuration options. They can be set either globally (using the `--global` flag) or on a per-project basis.
-
-For example, we can change the global behavior to always automatically stash changes:
-
-```bash
 $ git config --global pug.update.stash true
 ```
 
-and still keep the default no-stash behavior for a subset of projects:
+and still keep the default no-stash behavior where we need to:
 
 ```
 $ cd ~/Developer/tapas
@@ -197,7 +298,7 @@ $ git config pug.update.stash false
 
 ### Options
 
-_pug.update.**rebase**_
+⚙ pug.update.**rebase**
 
 > _boolean_ — When **true**, `pug update` will perform `git fetch` and `git rebase` instead of `git pull`.
 >
@@ -205,55 +306,18 @@ _pug.update.**rebase**_
 
 > 🎉 **New in v0.5**
 
-_pug.update.**stash**_
+⚙ pug.update.**stash**
 
 > _boolean_ — When **true**, automatically `stash` any changes in the active project before `pull`-ing, then pop the stack afterward
 >
 > Default value is **false**
 
-_pug.update.**submodules**_
+⚙ pug.update.**submodules**
 
 > _boolean_ — Whether to update submodules during `pug update`
 >
 > Default value is **true**
 
-
-## 🛠 Under the hood
-
-It's important for you to know what Pug is doing on your behalf during `pug update`. In order of operations:
-
-```bash
-git pull
-git submodule update --init --recursive
-```
-
-If the `pug.update.rebase` configuration option is set to `true`, Pug will instead run:
-
-```
-git fetch
-git rebase
-git submodule update --init --recursive
-```
-
-### Dependency Managers
-
-If Pug detects CocoaPods, it will try to determine if an update is necessary. If so:
-
-```bash
-pod install
-```
-
-If Pug detects Composer and determines an update is necessary:
-
-```bash
-composer update
-```
-
-To force dependency updates:
-
-```bash
-$ pug update --force
-```
 
 
 ## 💡 Tips
@@ -262,7 +326,7 @@ $ pug update --force
 
 Save yourself a few keystrokes every `update`:
 
-```bash
+```
 $ pug up
 ```
 
@@ -271,15 +335,16 @@ $ pug up
 
 Command-specific help is always available on the command line:
 
-```bash
+```
 $ pug help
 usage: pug [--version] <command> [<args>]
 
 Commands are:
    add        Start tracking a new project
-   disable    Exclude project from 'all' updates
-   enable     Include project in 'all' updates
-   rm         Stop tracking a project
+   disable    Exclude projects from 'all' updates
+   enable     Include projects in 'all' updates
+   rename     Rename an existing project
+   rm         Stop tracking projects
    show       Show tracked projects
    update     Fetch project updates
    upgrade    Fetch the newest version of Pug
