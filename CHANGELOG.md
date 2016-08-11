@@ -2,7 +2,7 @@
 
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
-## [Unreleased]
+## [0.6.0] - 2015-08-10
 ### Added
 - Namespaces
 - Command support for namespaces (aka groups): enable, disable, remove, update
