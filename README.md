@@ -2,6 +2,14 @@
 
 One command is all you need to update local repositories and their submodules. If a project is using [CocoaPods](https://cocoapods.org) or [Composer](https://getcomposer.org) to manage its dependencies, Pug will automatically update those, too.
 
+## Contents
+
+1. [Installation](#installation)
+1. [Basics](#basics)
+1. [Update](#update)
+1. [Configuration](#configuration)
+1. [Tips](#tips)
+1. [Help](#help)
 
 ## Installation
 
@@ -331,7 +339,7 @@ $ pug up
 ```
 
 
-## 🚩 Help
+## Help
 
 Command-specific help is always available on the command line:
 
