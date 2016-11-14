@@ -2,7 +2,11 @@
 
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
-## [0.6.0] - 2015-08-10
+## [0.7.0] - 2017-11-14
+### Added
+- `pug install`
+
+## [0.6.0] - 2016-08-10
 ### Added
 - Namespaces
 - Command support for namespaces (aka groups): enable, disable, remove, update
