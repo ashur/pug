@@ -13,8 +13,28 @@ One command is all you need to update local repositories and their submodules. I
 
 ## Installation
 
+First, clone this repository:
+
 ```
+$ cd ~/tools
 $ git clone --recursive https://github.com/ashur/pug.git
+```
+
+> 🎉 **New in v0.7**
+
+Next, run the `install` command and include a directory that's already on your `$PATH`:
+
+```
+$ pug/bin/pug install /usr/local/bin
+Linked to '/usr/local/bin/pug'
+```
+
+This will symlink the `pug` executable, letting you run `pug` from anywhere on the command line:
+
+```
+$ cd ~/Desktop/
+$ pug --version
+pug version 0.7.0
 ```
 
 ### Requirements
@@ -42,33 +62,10 @@ $ pug up
 >
 > ```
 > $ pug --version
-> pug version 0.5.0
+> pug version 0.7.0
 > ```
 >
 > Nice. 😁
-
-### Extra Credit
-
-Let's say you cloned Pug to a local directory `~/tools`:
-
-```
-$ cd ~/tools
-$ git clone --recursive https://github.com/ashur/pug.git
-```
-
-You'll probably want to symlink the Pug executable to a directory already on your `$PATH`:
-
-```
-$ ln -s ~/tools/pug/bin/pug /usr/local/bin/pug
-```
-
-This lets you run `pug` commands from anywhere on the command line, not just from inside the Pug repository folder.
-
-Alternatively, you can add the repository's `bin` folder to your environment `$PATH`. For example:
-
-```
-export PATH=$PATH:$HOME/tools/pug/bin
-```
 
 
 ## Basics
