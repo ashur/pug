@@ -468,7 +468,7 @@ class Project implements \JsonSerializable
 	{
 		return [
 			'name' => $this->getName(),
-			'path' => $this->source->getRealPath(),
+			'path' => $this->source->getPathname(),
 			'enabled' => $this->enabled,
 			'updated' => $this->updated
 		];
