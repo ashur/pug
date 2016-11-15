@@ -63,7 +63,15 @@ class Pug
 			{
 				$enabled = isset( $projectInfo['enabled'] ) ? $projectInfo['enabled'] : true;
 				$updated = isset( $projectInfo['updated'] ) ? $projectInfo['updated'] : null;
-				$dirProject = new File\Directory( $projectInfo['path'] );
+
+				try
+				{
+					$dirProject = new File\Directory( $projectInfo['path'] );
+				}
+				catch( \Exception $e )
+				{
+					continue;
+				}
 
 				$project = new Project( $projectInfo['name'], $dirProject, $enabled, $updated );
 

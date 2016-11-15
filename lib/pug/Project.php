@@ -408,15 +408,20 @@ class Project implements \JsonSerializable
 		/*
 		 * Restore submodules to previous states as appropriate
 		 */
-		foreach( $preInventory as $submoduleName => $preUpdateInfo )
+		foreach( $postInventory as $submoduleName => $postUpdateInfo )
 		{
-			$projectSubmodule = $preUpdateInfo['project'];
+			$projectSubmodule = $postUpdateInfo['project'];
 			$pathSubmodule = $projectSubmodule->getPath();
 
 			$stringFormatted = new Format\String();
 			$stringFormatted->foregroundColor( 'blue' );
 
-			$postUpdateInfo = $postInventory[$submoduleName];
+			if( !isset( $preInventory[$submoduleName] ) )
+			{
+				continue;
+			}
+
+			$preUpdateInfo = $preInventory[$submoduleName];
 
 			/*
 			 * Submodules that were checked out to a branch before the update
@@ -463,7 +468,7 @@ class Project implements \JsonSerializable
 	{
 		return [
 			'name' => $this->getName(),
-			'path' => $this->source->getRealPath(),
+			'path' => $this->source->getPathname(),
 			'enabled' => $this->enabled,
 			'updated' => $this->updated
 		];
