@@ -2,7 +2,7 @@
 
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
-## Unreleased
+## [0.7.1] - 2017-11-14
 ### Fixed
 - Iterate through post-update submodule inventory during state restoration
 - No longer overwrite invalid path with `false`
