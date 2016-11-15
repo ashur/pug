@@ -8,7 +8,7 @@ One command is all you need to update local repositories and their submodules. I
 1. [Basics](#basics)
 1. [Update](#update)
 1. [Configuration](#configuration)
-1. [Tips](#tips)
+1. [Tips](#-tips)
 1. [Help](#help)
 
 ## Installation
@@ -348,6 +348,7 @@ Commands are:
    add        Start tracking a new project
    disable    Exclude projects from 'all' updates
    enable     Include projects in 'all' updates
+   install    Symlink 'pug' to a convenient path
    rename     Rename an existing project
    rm         Stop tracking projects
    show       Show tracked projects
