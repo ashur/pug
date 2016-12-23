@@ -5,6 +5,7 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 ## [Unreleased]
 ### Added
 - Support for displaying project metadata
+- Support for cloning new projects
 
 ## [0.7.1] - 2017-11-14
 ### Fixed
