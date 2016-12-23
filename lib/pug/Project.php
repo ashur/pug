@@ -142,6 +142,48 @@ class Project implements \JsonSerializable
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getActiveBranch()
+	{
+		$branchName = '-';
+
+		if( $this->source->exists() )
+		{
+			chdir( $this->source );
+			$result = Pug::executeCommand( 'git rev-parse --abbrev-ref HEAD', false );
+
+			if( $result['exitCode'] === 0 )
+			{
+				$branchName = $result['result'];
+			}
+		}
+
+		return $branchName;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getCommitHash()
+	{
+		$commitHash = '-';
+
+		if( $this->source->exists() )
+		{
+			chdir( $this->source );
+			$result = Pug::executeCommand( 'git log --pretty=format:"%h" -n 1', false );
+
+			if( $result['exitCode'] === 0 )
+			{
+				$commitHash = $result['result'];
+			}
+		}
+
+		return $commitHash;
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	boolean|string
 	 */

@@ -42,7 +42,8 @@ $commandAdd = new CLI\Command( 'add', 'Start tracking a new project', function( 
 		throw new CLI\Command\CommandInvokedException( "Couldn't track project. {$e->getMessage()}", 1 );
 	}
 
-	return listProjects( $pug->getProjects() );
+	$output = listProjects( $pug->getProjects() );
+	return $output->flush();
 });
 
 $commandAdd->addAlias( 'track' );

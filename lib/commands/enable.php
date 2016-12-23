@@ -40,7 +40,8 @@ $commandEnable = new CLI\Command( 'enable', 'Include projects in \'all\' updates
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	return listProjects( $pug->getProjects() );
+	$output = listProjects( $pug->getProjects() );
+	return $output->flush();
 });
 
 $commandEnable->setUsage( 'enable [all|<group>|<project>]' );

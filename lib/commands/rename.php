@@ -26,7 +26,8 @@ $commandRename = new CLI\Command( 'rename', 'Rename an existing project', functi
 		throw new Command\CommandInvokedException( $e->getMessage(), 1 );
 	}
 
-	return listProjects( $pug->getProjects() );
+	$output = listProjects( $pug->getProjects() );
+	return $output->flush();
 });
 
 return $commandRename;

@@ -10,9 +10,10 @@ use Huxtable\CLI;
 // Helpers
 /**
  * @param	array	$projects
- * @param	string	$name
+ * @param	boolean	$showGit
+ * @param	boolean	$showPath
  */
-function listProjects( array $projects, $name='' )
+function listProjects( array $projects, $showGit=false, $showPath=false )
 {
 	if (count ($projects) < 1)
 	{
@@ -20,52 +21,61 @@ function listProjects( array $projects, $name='' )
 	}
 
 	$output = new CLI\Output;
-
 	$iconEnabled = new CLI\Format\String( '*' );
 	$iconEnabled->foregroundColor( 'green' );
 
-	// List all projects
-	if( strlen( $name ) == 0 )
+	$maxLengthName = 0;
+	$maxLengthBranch = 0;
+
+	/* Get project values */
+	$metadata = [];
+	foreach( $projects as $project )
 	{
-		foreach($projects as $project)
+		$projectMetadata['branch'] = $project->getActiveBranch();
+		$projectMetadata['commit'] = $project->getCommitHash();
+		$projectMetadata['icon'] = $project->isEnabled() ? $iconEnabled : ' ';
+		$projectMetadata['name'] = $project->getName();
+		$projectMetadata['path'] = str_replace( getenv( 'HOME' ), '~', $project->getPath() );
+
+		if( strlen( $projectMetadata['name'] ) > $maxLengthName )
 		{
-			$output->line (sprintf
-			(
-				'%s %s'
-				, $project->isEnabled() ? $iconEnabled : ' '
-				, $project->getName()
-			));
+			$maxLengthName = strlen( $projectMetadata['name'] );
 		}
-	}
-	else
-	{
-		$listed = false;
-
-		foreach($projects as $project)
+		if( strlen( $projectMetadata['branch'] ) > $maxLengthBranch )
 		{
-			if( $project->getName() == $name )
-			{
-				$updated = is_null ($project->getUpdated()) ? '-' : CLI\Format::date ($project->getUpdated());
-				$path = str_replace (getenv('HOME'), '~', $project->getPath());
-
-				$output->line (sprintf
-				(
-					'%s %-12s  %s'
-					, $project->isEnabled() ? $iconEnabled : ' '
-					, $updated
-					, $path
-				));
-
-
-				$listed = true;
-			}
+			$maxLengthBranch = strlen( $projectMetadata['branch'] );
 		}
 
-		if( !$listed )
-		{
-			throw new CLI\Command\CommandInvokedException( "Project '{$name}' not found.", 1 );
-		}
+		$metadata[] = $projectMetadata;
 	}
 
-	return $output->flush();
+	/* Generate output */
+	foreach( $metadata as $project )
+	{
+		$line = sprintf(
+			"%s %-{$maxLengthName}s",
+			$project['icon'],
+			$project['name']
+		);
+
+		if( $showGit )
+		{
+			$line .= sprintf( "  %-{$maxLengthBranch}s  %-7s",
+				$project['branch'],
+				$project['commit']
+			);
+		}
+
+		if( $showPath )
+		{
+			$projectPath = new CLI\Format\String( $project['path'] );
+			$projectPath->foregroundColor( 'cyan' );
+
+			$line .= "  {$projectPath}";
+		}
+
+		$output->line( $line );
+	}
+
+	return $output;
 }

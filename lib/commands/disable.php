@@ -40,7 +40,8 @@ $commandDisable = new CLI\Command( 'disable', 'Exclude projects from \'all\' upd
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	return listProjects( $pug->getProjects() );
+	$output = listProjects( $pug->getProjects() );
+	return $output->flush();
 });
 
 $commandDisable->setUsage( 'disable [all|<group>|<project>]' );

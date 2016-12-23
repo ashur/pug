@@ -52,7 +52,8 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	return listProjects ($pug->getProjects());
+	$output = listProjects( $pug->getProjects() );
+	return $output->flush();
 });
 
 $commandRemove->addAlias( 'remove' );
