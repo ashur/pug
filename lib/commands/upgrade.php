@@ -7,7 +7,7 @@ namespace Pug;
 
 use Huxtable\CLI\Command;
 use Huxtable\CLI\Output;
-use Huxtable\CLI\Format;
+use Huxtable\CLI\FormattedString;
 
 /**
  * @command		upgrade
@@ -48,7 +48,7 @@ $commandUpgrade = new Command( 'upgrade', 'Fetch the newest version of Pug', fun
 	}
 
 	/* Display the release description */
-	$stringFormatted = new Format\String();
+	$stringFormatted = new FormattedString();
 
 	$releaseBodyLines = explode( "\r\n", trim( $latestRelease['body'] ) );
 	foreach( $releaseBodyLines as $releaseBodyLine )

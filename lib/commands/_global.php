@@ -21,7 +21,7 @@ function listProjects( array $projects, $showGit=false, $showPath=false )
 	}
 
 	$output = new CLI\Output;
-	$iconEnabled = new CLI\Format\String( '*' );
+	$iconEnabled = new CLI\FormattedString( '*' );
 	$iconEnabled->foregroundColor( 'green' );
 
 	$maxLengthName = 0;
@@ -68,7 +68,7 @@ function listProjects( array $projects, $showGit=false, $showPath=false )
 
 		if( $showPath )
 		{
-			$projectPath = new CLI\Format\String( $project['path'] );
+			$projectPath = new CLI\FormattedString( $project['path'] );
 			$projectPath->foregroundColor( 'cyan' );
 
 			$line .= "  {$projectPath}";

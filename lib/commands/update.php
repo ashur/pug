@@ -90,10 +90,10 @@ $commandUpdate = new CLI\Command('update', 'Fetch project updates', function( $q
 
 			$name = $target instanceof Project ? $target->getName() : $target;
 
-			$stringHalted = new CLI\Format\String( "Updating '{$name}'... halted:" );
+			$stringHalted = new CLI\FormattedString( "Updating '{$name}'... halted:" );
 			$stringHalted->backgroundColor( 'red' );
 
-			$stringMessage = new CLI\Format\String( " • {$e->getMessage()}" );
+			$stringMessage = new CLI\FormattedString( " • {$e->getMessage()}" );
 			$stringMessage->foregroundColor( 'red' );
 
 			echo $stringHalted . PHP_EOL . PHP_EOL;

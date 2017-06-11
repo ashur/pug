@@ -5,7 +5,7 @@
  */
 namespace Pug;
 
-use Huxtable\CLI\Format;
+use Huxtable\CLI\FormattedString;
 use Huxtable\Core\File;
 
 class Project implements \JsonSerializable
@@ -455,7 +455,7 @@ class Project implements \JsonSerializable
 			$projectSubmodule = $postUpdateInfo['project'];
 			$pathSubmodule = $projectSubmodule->getPath();
 
-			$stringFormatted = new Format\String();
+			$stringFormatted = new FormattedString();
 			$stringFormatted->foregroundColor( 'blue' );
 
 			if( !isset( $preInventory[$submoduleName] ) )

@@ -261,7 +261,7 @@ class Pug
 
 			foreach( $outputCommand as $line )
 			{
-				$formattedLine = new CLI\Format\String( "   > {$line}" );
+				$formattedLine = new CLI\FormattedString( "   > {$line}" );
 				$formattedLine->foregroundColor( $color );
 
 				if( strlen( $line ) > 0 )
