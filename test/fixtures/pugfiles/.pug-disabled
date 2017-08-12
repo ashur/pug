@@ -2,13 +2,13 @@
     "projects": [
         {
             "name": "pug/1",
-            "path": "../../",
+            "path": "./",
             "enabled": false,
             "updated": 1502560725
         },
         {
             "name": "pug/2",
-            "path": "../../",
+            "path": "./",
             "enabled": false,
             "updated": 1502560725
         }

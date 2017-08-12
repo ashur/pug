@@ -21,6 +21,11 @@ class PugTestCase extends TestCase
 	/**
 	 * @var	string
 	 */
+	static protected $projectPath;
+
+	/**
+	 * @var	string
+	 */
 	static protected $pugfilePath;
 
 	/**
@@ -47,10 +52,9 @@ class PugTestCase extends TestCase
 
 	static public function setUpBeforeClass()
 	{
-		$projectPath = dirname( dirname( dirname( __FILE__ ) ) );
-
-		self::$binPath = $projectPath . '/bin/pug';
-		self::$fixturesPath = $projectPath . '/test/fixtures';
+		self::$projectPath = dirname( dirname( dirname( __FILE__ ) ) );
+		self::$binPath = self::$projectPath . '/bin/pug';
+		self::$fixturesPath = self::$projectPath . '/test/fixtures';
 		self::$pugfilePath = self::$fixturesPath . '/.pug';
 	}
 
