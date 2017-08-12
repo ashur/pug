@@ -16,12 +16,12 @@ use Huxtable\CLI;
  */
 function listProjects( array $projects, $showGit=false, $showPath=false, $useColor=true )
 {
+	$output = new CLI\Output;
+
 	if (count ($projects) < 1)
 	{
-		return;
+		return $output;
 	}
-
-	$output = new CLI\Output;
 
 	if( $useColor )
 	{
