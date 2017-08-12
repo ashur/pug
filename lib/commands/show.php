@@ -29,6 +29,9 @@ $commandShow = new Command( 'show', 'Show tracked projects', function( $name=nul
 	$showPath = $showPath || $this->getOptionValue( 'p' ) == true;
 	$showPath = $showPath || $this->getOptionValue( 'path' ) == true;
 
+	/* Use color */
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+
 	if( !is_null( $name ) )
 	{
 		try
@@ -56,7 +59,7 @@ $commandShow = new Command( 'show', 'Show tracked projects', function( $name=nul
 	}
 	else
 	{
-		$output = listProjects( $projects, $showGit, $showPath );
+		$output = listProjects( $projects, $showGit, $showPath, $useColor );
 	}
 
 	return $output->flush();
@@ -66,6 +69,7 @@ $commandShow = new Command( 'show', 'Show tracked projects', function( $name=nul
 $commandShow->registerOption( 'A' );
 $commandShow->registerOption( 'g' );
 $commandShow->registerOption( 'git' );
+$commandShow->registerOption( 'no-color' );
 $commandShow->registerOption( 'p' );
 $commandShow->registerOption( 'path' );
 $commandShow->registerOption( 't', 'Sort by time modified (most recently modified first) before sorting projects by name' );

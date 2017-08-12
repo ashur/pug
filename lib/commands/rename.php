@@ -26,8 +26,13 @@ $commandRename = new CLI\Command( 'rename', 'Rename an existing project', functi
 		throw new Command\CommandInvokedException( $e->getMessage(), 1 );
 	}
 
-	$output = listProjects( $pug->getProjects() );
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+	$output = listProjects( $pug->getProjects(), false, false, $useColor );
+
 	return $output->flush();
 });
+
+/* Options */
+$commandRename->registerOption( 'no-color' );
 
 return $commandRename;

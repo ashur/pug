@@ -40,9 +40,14 @@ $commandEnable = new CLI\Command( 'enable', 'Include projects in \'all\' updates
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	$output = listProjects( $pug->getProjects() );
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+	$output = listProjects( $pug->getProjects(), false, false, $useColor );
+
 	return $output->flush();
 });
+
+/* Options */
+$commandEnable->registerOption( 'no-color' );
 
 $commandEnable->setUsage( 'enable [all|<group>|<project>]' );
 

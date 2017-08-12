@@ -52,9 +52,14 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	$output = listProjects( $pug->getProjects() );
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+	$output = listProjects( $pug->getProjects(), false, false, $useColor );
+
 	return $output->flush();
 });
+
+/* Options */
+$commandRemove->registerOption( 'no-color' );
 
 $commandRemove->addAlias( 'remove' );
 $commandRemove->addAlias( 'untrack' );

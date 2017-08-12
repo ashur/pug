@@ -40,9 +40,14 @@ $commandDisable = new CLI\Command( 'disable', 'Exclude projects from \'all\' upd
 		throw new Command\CommandInvokedException( "No groups or projects match '{$query}'.", 1 );
 	}
 
-	$output = listProjects( $pug->getProjects() );
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+	$output = listProjects( $pug->getProjects(), false, false, $useColor );
+
 	return $output->flush();
 });
+
+/* Options */
+$commandDisable->registerOption( 'no-color' );
 
 $commandDisable->setUsage( 'disable [all|<group>|<project>]' );
 

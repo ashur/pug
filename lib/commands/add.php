@@ -70,11 +70,14 @@ $commandAdd = new CLI\Command( 'add', 'Start tracking a new project', function( 
 		throw new CLI\Command\CommandInvokedException( "Couldn't track project. {$e->getMessage()}", 1 );
 	}
 
-	$output = listProjects( $pug->getProjects() );
+	$useColor = $this->getOptionValue( 'no-color' ) == null;
+	$output = listProjects( $pug->getProjects(), false, false, $useColor );
+
 	return $output->flush();
 });
 
 /* Options */
+$commandAdd->registerOption( 'no-color' );
 $commandAdd->registerOption( 'url' );
 
 /* Aliases */

@@ -12,8 +12,9 @@ use Huxtable\CLI;
  * @param	array	$projects
  * @param	boolean	$showGit
  * @param	boolean	$showPath
+ * @param	boolean	$useColor
  */
-function listProjects( array $projects, $showGit=false, $showPath=false )
+function listProjects( array $projects, $showGit=false, $showPath=false, $useColor=true )
 {
 	if (count ($projects) < 1)
 	{
@@ -21,8 +22,16 @@ function listProjects( array $projects, $showGit=false, $showPath=false )
 	}
 
 	$output = new CLI\Output;
-	$iconEnabled = new CLI\FormattedString( '*' );
-	$iconEnabled->foregroundColor( 'green' );
+
+	if( $useColor )
+	{
+		$iconEnabled = new CLI\FormattedString( '*' );
+		$iconEnabled->foregroundColor( 'green' );
+	}
+	else
+	{
+		$iconEnabled = '*';
+	}
 
 	$maxLengthName = 0;
 	$maxLengthBranch = 0;
@@ -68,8 +77,15 @@ function listProjects( array $projects, $showGit=false, $showPath=false )
 
 		if( $showPath )
 		{
-			$projectPath = new CLI\FormattedString( $project['path'] );
-			$projectPath->foregroundColor( 'cyan' );
+			if( $useColor )
+			{
+				$projectPath = new CLI\FormattedString( $project['path'] );
+				$projectPath->foregroundColor( 'cyan' );
+			}
+			else
+			{
+				$projectPath = $project['path'];
+			}
 
 			$line .= "  {$projectPath}";
 		}
