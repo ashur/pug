@@ -6,6 +6,7 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 ### Added
 - Specify alternative storage location using `PUGFILE` environment variable
 - `--no-color` option to commands which output project listing
+- `[-y|--yes|--assume-yes]` option for `remove` command to run non-interactively
 
 ### Fixed
 - PHP 7 reserved-name collision — [#28](https://github.com/ashur/pug/issues/28)

@@ -20,12 +20,20 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 	$pug = new Pug();
 	$query = strtolower( $query );
 
+	/* Assume "yes" */
+	$assumeYes = $this->getOptionValue( 'y' ) == true;
+	$assumeYes = $assumeYes || $this->getOptionValue( 'yes' ) == true;
+	$assumeYes = $assumeYes || $this->getOptionValue( 'assume-yes' ) == true;
+
 	try
 	{
 		if( $query == 'all' )
 		{
-			$didConfirm = strtolower( Input::prompt( 'Are you sure you want to remove all projects from Pug? (y/n)' ) );
-			if( $didConfirm == 'y' )
+			if( !$assumeYes )
+			{
+				$didConfirm = strtolower( Input::prompt( 'Are you sure you want to remove all projects from Pug? (y/n)' ) );
+			}
+			if( $assumeYes || $didConfirm == 'y' )
 			{
 				$pug->removeAllProjects();
 			}
@@ -35,8 +43,11 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 		{
 			$namespace = Project::getNormalizedNamespaceString( $query );
 
-			$didConfirm = strtolower( Input::prompt( "Are you sure you want to remove all projects in the '{$namespace}' group? (y/n)" ) );
-			if( $didConfirm == 'y' )
+			if( !$assumeYes )
+			{
+				$didConfirm = strtolower( Input::prompt( "Are you sure you want to remove all projects in the '{$namespace}' group? (y/n)" ) );
+			}
+			if( $assumeYes || $didConfirm == 'y' )
 			{
 				$pug->removeProjectsInNamespace( $namespace );
 			}
@@ -60,10 +71,24 @@ $commandRemove = new CLI\Command('rm', 'Stop tracking projects', function( $quer
 
 /* Options */
 $commandRemove->registerOption( 'no-color' );
+$commandRemove->registerOption( 'y' );
+$commandRemove->registerOption( 'yes' );
+$commandRemove->registerOption( 'assume-yes' );
 
 $commandRemove->addAlias( 'remove' );
 $commandRemove->addAlias( 'untrack' );
 
-$commandRemove->setUsage( 'rm [all|<group>|<project>]' );
+/* Usage */
+$commandRemoveUsage = <<<USAGE
+rm [all|<group>[/<project>]|<project>] [-y|--yes|--assume-yes]
+
+OPTIONS
+    -y, --yes, --assume-yes
+        Automatic yes to prompts. Assume "yes" as answer to all prompts and run
+        non-interactively.
+
+USAGE;
+
+$commandRemove->setUsage( $commandRemoveUsage );
 
 return $commandRemove;
