@@ -1,0 +1,22 @@
+{
+    "projects": [
+        {
+            "name": "red/1",
+            "path": "./",
+            "enabled": true,
+            "updated": 1502560725
+        },
+        {
+            "name": "green/1",
+            "path": "./",
+            "enabled": true,
+            "updated": 1502560725
+        },
+        {
+            "name": "red/2",
+            "path": "./",
+            "enabled": true,
+            "updated": 1502560725
+        }
+    ]
+}

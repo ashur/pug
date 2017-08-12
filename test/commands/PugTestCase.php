@@ -73,12 +73,15 @@ class PugTestCase extends TestCase
 	{
 		$dirPugfiles = self::$fixturesPath . '/pugfiles';
 
+		self::$pugfilePath = self::$fixturesPath . '/.pug-' . microtime( true );
+
 		$sourceFilename = "{$dirPugfiles}/{$filename}";
 		$targetFilename = self::$pugfilePath;
 
 		if( file_exists( $sourceFilename ) )
 		{
 			copy( $sourceFilename, $targetFilename );
+			$this->assertEquals( file_get_contents( $sourceFilename ), file_get_contents( $targetFilename ) );
 		}
 		else
 		{
