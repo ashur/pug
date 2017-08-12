@@ -7,6 +7,9 @@ All notable changes to Pug will be documented in this file (beginning with v0.5 
 - Specify alternative storage location using `PUGFILE` environment variable
 - `--no-color` option to commands which output project listing
 
+### Fixed
+- PHP 7 reserved-name collision — [#28](https://github.com/ashur/pug/issues/28)
+
 ## [0.7.2] - 2016-12-23
 ### Added
 - Support for displaying project metadata
