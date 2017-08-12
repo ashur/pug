@@ -9,8 +9,6 @@ use Huxtable\CLI;
 use Huxtable\Core\File;
 use Huxtable\Core\HTTP;
 
-define( 'PUG_CONFIG', getenv('HOME') . DIRECTORY_SEPARATOR . '.pug' );
-
 class Pug
 {
 	/**
@@ -29,30 +27,42 @@ class Pug
 	protected $projects=[];
 
 	/**
+	 * @var	Huxtable\Core\File\File
+	 */
+	protected $pugFile;
+
+	/**
 	 * @return	void
 	 */
 	public function __construct()
 	{
-		$fileConfig = new File\File( PUG_CONFIG );
+		if( ($envPugFile = getenv( 'PUGFILE' )) == false )
+		{
+			$this->pugFile = new File\File( getenv('HOME') . '/.pug' );
+		}
+		else
+		{
+			$this->pugFile = new File\File( $envPugFile );
+		}
 
 		/*
 		 * Make sure the config file is ready to go
 		 */
-		if( !$fileConfig->exists() )
+		if( !$this->pugFile->exists() )
 		{
-			$fileConfig->create();
+			$this->pugFile->create();
 		}
 
-		if( !$fileConfig->isReadable() )
+		if( !$this->pugFile->isReadable() )
 		{
-			throw new \Exception( 'Can\'t read from ' . PUG_CONFIG, 1 );
+			throw new \Exception( 'Can\'t read from ' . $this->pugFile, 1 );
 		}
-		if( !$fileConfig->isWritable() )
+		if( !$this->pugFile->isWritable() )
 		{
-			throw new \Exception( 'Can\'t write to ' . PUG_CONFIG, 1 );
+			throw new \Exception( 'Can\'t write to ' . $this->pugFile, 1 );
 		}
 
-		$json = json_decode( $fileConfig->getContents(), true );
+		$json = json_decode( $this->pugFile->getContents(), true );
 
 		/*
 		 * Load projects
@@ -632,6 +642,6 @@ class Pug
 
 		$json = json_encode(compact('projects'), JSON_PRETTY_PRINT);
 
-		file_put_contents(PUG_CONFIG, $json);
+		file_put_contents($this->pugFile, $json);
 	}
 }
