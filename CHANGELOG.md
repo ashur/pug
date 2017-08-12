@@ -3,6 +3,8 @@
 All notable changes to Pug will be documented in this file (beginning with v0.5 😅).
 
 ## [Unreleased]
+
+## [0.7.3] - 2017-08-12
 ### Added
 - Specify alternative storage location using `PUGFILE` environment variable
 - `--no-color` option to commands which output project listing
