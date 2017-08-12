@@ -1,0 +1,16 @@
+{
+    "projects": [
+        {
+            "name": "pug/1",
+            "path": "../../",
+            "enabled": true,
+            "updated": 1502560725
+        },
+        {
+            "name": "pug/2",
+            "path": "../../",
+            "enabled": true,
+            "updated": 1502560725
+        }
+    ]
+}
