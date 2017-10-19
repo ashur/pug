@@ -13,7 +13,24 @@ One command is all you need to update local repositories and their submodules. I
 
 ## Installation
 
-First, clone this repository:
+### Homebrew
+
+Installing Fig with [Homebrew](https://brew.sh) is a snap:
+
+```
+$ brew tap ashur/pug
+$ brew install pug
+```
+
+That's it! Installing future updates is also a cinch:
+
+```
+$ brew upgrade pug
+```
+
+### Git
+
+You can also install Pug using Git. First, clone this repository:
 
 ```
 $ cd ~/tools
